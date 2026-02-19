@@ -1,0 +1,104 @@
+<mat-sidenav-container class="shell">
+
+  <!-- SIDEBAR -->
+  <mat-sidenav mode="side" opened class="sidenav">
+
+    <div class="brand">
+      <div class="logo">CC</div>
+      <div class="brand-text">
+        <div class="brand-title">CCAT</div>
+        <div class="brand-sub">MVP 1 · Gestión</div>
+      </div>
+    </div>
+
+    <mat-divider class="divider"></mat-divider>
+
+    <mat-nav-list class="nav">
+      <a mat-list-item routerLink="/app/dashboard" routerLinkActive="active">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </a>
+
+      <a mat-list-item routerLink="/app/inventario" routerLinkActive="active">
+        <mat-icon>inventory_2</mat-icon>
+        <span>Inventario</span>
+      </a>
+
+      <mat-expansion-panel class="exp" hideToggle>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>receipt_long</mat-icon>
+            <span>Contabilidad</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="exp-links">
+          <a routerLink="/app/contabilidad/facturacion" routerLinkActive="active">Facturación</a>
+          <a routerLink="/app/contabilidad/compras" routerLinkActive="active">Compras</a>
+          <a routerLink="/app/contabilidad/guias" routerLinkActive="active">Guías</a>
+        </div>
+      </mat-expansion-panel>
+
+      <a mat-list-item routerLink="/app/usuarios" routerLinkActive="active">
+        <mat-icon>group</mat-icon>
+        <span>Usuarios</span>
+      </a>
+
+      <a mat-list-item routerLink="/app/vehiculos-nuevos">
+        <mat-icon>directions_car</mat-icon>
+        <span>Vehículos Nuevos</span>
+      </a>
+
+
+      <a mat-list-item routerLink="/app/servicios-mecanicos" routerLinkActive="active">
+        <mat-icon>build</mat-icon>
+        <span>Servicios Mecánicos</span>
+      </a>
+
+      <a mat-list-item routerLink="/app/clientes" routerLinkActive="active">
+        <mat-icon>badge</mat-icon>
+        <span>Clientes</span>
+      </a>
+    </mat-nav-list>
+
+    <div class="sidebar-foot">
+      <div class="foot-chip">
+        <mat-icon>verified</mat-icon>
+        <span>Build MVP listo</span>
+      </div>
+      <div class="foot-muted">© 2026 CCAT</div>
+    </div>
+
+  </mat-sidenav>
+
+  <!-- CONTENT -->
+  <mat-sidenav-content class="content">
+
+    <mat-toolbar color="primary" class="toolbar">
+      <span class="toolbar-title">CCAT · Sistema de Gestión</span>
+
+      <span class="spacer"></span>
+
+      <button mat-button [matMenuTriggerFor]="menuUser">
+        <mat-icon>account_circle</mat-icon>
+        <span class="user">Admin</span>
+      </button>
+
+      <mat-menu #menuUser="matMenu">
+        <button mat-menu-item routerLink="/app/usuarios">
+          <mat-icon>manage_accounts</mat-icon>
+          <span>Mi perfil</span>
+        </button>
+        <button mat-menu-item routerLink="/login">
+          <mat-icon>logout</mat-icon>
+          <span>Salir</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <div class="page">
+      <router-outlet></router-outlet>
+    </div>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>

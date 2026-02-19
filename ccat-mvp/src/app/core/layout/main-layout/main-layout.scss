@@ -1,0 +1,121 @@
+.shell { height: 100vh; }
+
+.sidenav {
+  width: 270px;
+  padding: 14px 12px;
+  background: #171717;
+  color: #f2f2f2;
+  border-right: 1px solid rgba(255,255,255,.06);
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 10px 14px;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: #b71c1c;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.brand-title { font-weight: 800; letter-spacing: .4px; }
+.brand-sub { opacity: .7; font-size: 12px; }
+
+.divider { margin: 6px 0 10px; opacity: .12; }
+
+.nav a.mat-mdc-list-item {
+  border-radius: 12px;
+  margin: 4px 0;
+  color: #eaeaea;
+  transition: background .15s ease, transform .08s ease;
+}
+
+.nav a.mat-mdc-list-item:hover {
+  background: rgba(255,255,255,.06);
+}
+
+.nav a.active {
+  background: rgba(183, 28, 28, 0.30);
+}
+
+.nav mat-icon {
+  margin-right: 12px;
+  opacity: .95;
+}
+
+/* Expansion */
+.exp {
+  background: transparent;
+  color: #eaeaea;
+  border-radius: 12px;
+  margin: 6px 0;
+  overflow: hidden;
+}
+
+.exp ::ng-deep .mat-expansion-panel-header {
+  padding: 0 16px;
+  min-height: 48px;
+}
+
+.exp-links {
+  display: grid;
+  gap: 10px;
+  padding: 6px 16px 12px 54px;
+}
+
+.exp-links a {
+  color: #eaeaea;
+  text-decoration: none;
+  opacity: .85;
+  font-size: 14px;
+}
+
+.exp-links a:hover { opacity: 1; }
+.exp-links a.active { opacity: 1; font-weight: 700; }
+
+.sidebar-foot {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.foot-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+  font-size: 13px;
+}
+
+.foot-muted {
+  opacity: .6;
+  font-size: 12px;
+  padding-left: 4px;
+}
+
+.content { background: #f4f5f7; }
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.toolbar-title { font-weight: 700; }
+.user { margin-left: 6px; }
+.spacer { flex: 1; }
+
+.page { padding: 18px; }

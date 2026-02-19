@@ -1,0 +1,96 @@
+<div class="page-head">
+  <div>
+    <h1>Vehículos Nuevos</h1>
+    <p>Gestión de vehículos nuevos disponibles para venta</p>
+  </div>
+
+  <div class="actions">
+    <button mat-raised-button color="primary" (click)="nuevoVehiculo()">
+      <mat-icon>add</mat-icon>
+      Nuevo vehículo
+    </button>
+  </div>
+</div>
+
+<mat-card class="card">
+
+  <div class="tools">
+    <mat-form-field appearance="outline">
+      <mat-label>Buscar vehículo</mat-label>
+      <input matInput placeholder="Código, marca o modelo">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z0">
+
+    <!-- Código -->
+    <ng-container matColumnDef="codigo">
+      <th mat-header-cell *matHeaderCellDef>Código</th>
+      <td mat-cell *matCellDef="let v">{{ v.codigo }}</td>
+    </ng-container>
+
+    <!-- Vehículo -->
+    <ng-container matColumnDef="vehiculo">
+      <th mat-header-cell *matHeaderCellDef>Vehículo</th>
+      <td mat-cell *matCellDef="let v">
+        <div class="vehiculo">
+          <div class="marca">{{ v.marca }}</div>
+          <div class="modelo">{{ v.modelo }}</div>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Año -->
+    <ng-container matColumnDef="anio">
+      <th mat-header-cell *matHeaderCellDef>Año</th>
+      <td mat-cell *matCellDef="let v">{{ v.anio }}</td>
+    </ng-container>
+
+    <!-- Color -->
+    <ng-container matColumnDef="color">
+      <th mat-header-cell *matHeaderCellDef>Color</th>
+      <td mat-cell *matCellDef="let v">{{ v.color }}</td>
+    </ng-container>
+
+    <!-- Precio -->
+    <ng-container matColumnDef="precio">
+      <th mat-header-cell *matHeaderCellDef>Precio</th>
+      <td mat-cell *matCellDef="let v">
+        S/ {{ v.precio | number:'1.0-0' }}
+      </td>
+    </ng-container>
+
+    <!-- Estado -->
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let v">
+        <mat-chip
+          class="estado"
+          [class.disponible]="v.estado === 'DISPONIBLE'"
+          [class.reservado]="v.estado === 'RESERVADO'"
+          [class.vendido]="v.estado === 'VENDIDO'">
+          {{ v.estado }}
+        </mat-chip>
+      </td>
+    </ng-container>
+
+    <!-- Acciones -->
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let v">
+        <button mat-icon-button color="primary" (click)="editar(v)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="eliminar(v)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  </table>
+
+</mat-card>

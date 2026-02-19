@@ -1,0 +1,99 @@
+<div class="head">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Resumen general del sistema (MVP). Listo para conectar datos reales.</p>
+  </div>
+
+  <div class="actions">
+    <button mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      Nuevo movimiento
+    </button>
+    <button mat-stroked-button>
+      <mat-icon>search</mat-icon>
+      Buscar
+    </button>
+  </div>
+</div>
+
+<div class="kpis">
+  <mat-card class="kpi" *ngFor="let k of kpis">
+    <div class="kpi-icon">
+      <mat-icon>{{ k.icon }}</mat-icon>
+    </div>
+    <div class="kpi-body">
+      <div class="kpi-title">{{ k.title }}</div>
+      <div class="kpi-value">{{ k.value }}</div>
+    </div>
+  </mat-card>
+</div>
+
+<div class="grid">
+  <mat-card class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Accesos rápidos</h3>
+        <span>Ir directo a los módulos principales</span>
+      </div>
+    </div>
+
+    <div class="quick">
+      <button mat-stroked-button routerLink="/app/usuarios">
+        <mat-icon>group</mat-icon>
+        Usuarios
+      </button>
+      <button mat-stroked-button routerLink="/app/inventario">
+        <mat-icon>inventory_2</mat-icon>
+        Inventario
+      </button>
+      <button mat-stroked-button routerLink="/app/vehiculos-nuevos">
+        <mat-icon>directions_car</mat-icon>
+        Vehículos
+      </button>
+      <button mat-stroked-button routerLink="/app/contabilidad/facturacion">
+        <mat-icon>receipt_long</mat-icon>
+        Facturación
+      </button>
+    </div>
+  </mat-card>
+
+  <mat-card class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Actividad reciente</h3>
+        <span>Placeholder para mostrar operaciones</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="list">
+      <div class="item">
+        <div class="dot ok"></div>
+        <div class="txt">
+          <b>Stock</b> inicial cargado
+          <div class="muted">Inventario · hace 2 min</div>
+        </div>
+        <span class="tag">OK</span>
+      </div>
+
+      <div class="item">
+        <div class="dot warn"></div>
+        <div class="txt">
+          <b>Compra</b> registrada
+          <div class="muted">Compras · hace 10 min</div>
+        </div>
+        <span class="tag">COMP</span>
+      </div>
+
+      <div class="item">
+        <div class="dot info"></div>
+        <div class="txt">
+          <b>Usuario</b> creado
+          <div class="muted">Usuarios · hoy</div>
+        </div>
+        <span class="tag">USR</span>
+      </div>
+    </div>
+  </mat-card>
+</div>

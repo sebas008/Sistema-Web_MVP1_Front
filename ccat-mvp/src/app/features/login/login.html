@@ -1,0 +1,48 @@
+<div class="login-page">
+  <mat-card class="login-card">
+
+    <h1 class="title">CCAT</h1>
+    <p class="subtitle">Sistema de Gestión · MVP</p>
+
+    <form [formGroup]="form" (ngSubmit)="login()">
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Usuario</mat-label>
+        <input matInput formControlName="username" />
+        <mat-icon matSuffix>person</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Contraseña</mat-label>
+        <input
+          matInput
+          [type]="hidePassword ? 'password' : 'text'"
+          formControlName="password"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="hidePassword = !hidePassword">
+          <mat-icon>
+            {{ hidePassword ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+        </button>
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        class="full login-btn"
+        type="submit">
+        Ingresar
+      </button>
+
+    </form>
+
+    <div class="footer">
+      <span>MVP1 · CCAT © 2026</span>
+    </div>
+
+  </mat-card>
+</div>
