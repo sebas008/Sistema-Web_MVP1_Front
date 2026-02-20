@@ -45,6 +45,31 @@ export const routes: Routes = [
             .then(m => m.VehiculosNuevosComponent)
       },
 
+      {
+        path: 'contabilidad',
+        children: [
+          {
+            path: 'facturacion',
+            loadComponent: () =>
+              import('./features/contabilidad/facturacion/facturacion')
+                .then(m => m.FacturacionComponent)
+          },
+          {
+            path: 'compras',
+            loadComponent: () =>
+              import('./features/contabilidad/compras/compras')
+                .then(m => m.ComprasComponent)
+          },
+          {
+            path: 'guias',
+            loadComponent: () =>
+              import('./features/contabilidad/guias/guias')
+                .then(m => m.GuiasComponent)
+          },
+          { path: '', redirectTo: 'facturacion', pathMatch: 'full' }
+        ]
+      },
+
       // cuando entres a /app, cae al dashboard
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

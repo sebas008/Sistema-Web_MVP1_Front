@@ -1,0 +1,114 @@
+<div class="page-head">
+  <div>
+    <h1>Contabilidad · Facturación</h1>
+    <p>Emisión y consulta de facturas</p>
+  </div>
+
+  <div class="actions">
+    <button mat-flat-button color="warn" (click)="emitirDemo()" [disabled]="loading">
+      <mat-icon>add</mat-icon>
+      Emitir (demo)
+    </button>
+  </div>
+</div>
+
+<div class="kpis">
+  <mat-card class="kpi">
+    <div class="kpi-title">Emitidas</div>
+    <div class="kpi-value">{{ totalEmitidas }}</div>
+  </mat-card>
+
+  <mat-card class="kpi">
+    <div class="kpi-title">Anuladas</div>
+    <div class="kpi-value">{{ totalAnuladas }}</div>
+  </mat-card>
+
+  <mat-card class="kpi">
+    <div class="kpi-title">Total (lista)</div>
+    <div class="kpi-value">S/ {{ sumaTotal | number:'1.2-2' }}</div>
+  </mat-card>
+</div>
+
+<mat-card class="card">
+  <div class="toolbar">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Buscar</mat-label>
+      <input matInput placeholder="N° factura, cliente..." formControlName="q" [formGroup]="form" (keyup.enter)="cargar()" />
+      <button mat-icon-button matSuffix type="button" (click)="cargar()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <div class="toolbar-actions">
+      <button mat-stroked-button (click)="limpiar()" [disabled]="loading">
+        Limpiar
+      </button>
+      <button mat-raised-button color="primary" (click)="cargar()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <div class="state" *ngIf="loading">
+    <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
+    <span>Cargando...</span>
+  </div>
+
+  <div class="error" *ngIf="!loading && errorMsg">
+    {{ errorMsg }}
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z0 table" *ngIf="!loading">
+
+    <ng-container matColumnDef="numero">
+      <th mat-header-cell *matHeaderCellDef>N°</th>
+      <td mat-cell *matCellDef="let f"><b>{{ f.numero }}</b></td>
+    </ng-container>
+
+    <ng-container matColumnDef="cliente">
+      <th mat-header-cell *matHeaderCellDef>Cliente</th>
+      <td mat-cell *matCellDef="let f">{{ f.cliente || '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="fecha">
+      <th mat-header-cell *matHeaderCellDef>Fecha</th>
+      <td mat-cell *matCellDef="let f">{{ f.fecha | date:'yyyy-MM-dd' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="total">
+      <th mat-header-cell *matHeaderCellDef>Total</th>
+      <td mat-cell *matCellDef="let f">S/ {{ f.total | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let f">
+        <mat-chip class="chip" [class.bad]="(f.estado||'').toUpperCase()==='ANULADA'">
+          {{ f.estado }}
+        </mat-chip>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let f" class="act">
+        <button mat-icon-button (click)="ver(f)" matTooltip="Ver">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="anular(f)" matTooltip="Anular">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <div class="empty" *ngIf="!loading && !errorMsg && dataSource.length === 0">
+    No hay facturas para mostrar.
+  </div>
+</mat-card>
