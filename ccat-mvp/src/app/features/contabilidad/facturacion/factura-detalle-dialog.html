@@ -1,0 +1,64 @@
+<div class="dlg">
+  <div class="dlg__header">
+    <h2 class="dlg__title">Detalle de factura</h2>
+    <button type="button" class="btn btn--ghost" (click)="cerrar()">Cerrar</button>
+  </div>
+
+  <div class="dlg__body">
+    <div *ngIf="loading" class="state">Cargando...</div>
+
+    <div *ngIf="!loading && error" class="state state--error">
+      {{ error }}
+    </div>
+
+    <ng-container *ngIf="!loading && !error && vm">
+      <div class="meta">
+        <div class="meta__item">
+          <div class="meta__label">N°</div>
+          <div class="meta__value">{{ vm.numero || '-' }}</div>
+        </div>
+        <div class="meta__item">
+          <div class="meta__label">Fecha</div>
+          <div class="meta__value">{{ vm?.fecha ? (vm.fecha | date:'yyyy-MM-dd') : '-' }}</div>
+        </div>
+        <div class="meta__item">
+          <div class="meta__label">Estado</div>
+          <div class="meta__value"><span class="chip">{{ vm.estado }}</span></div>
+        </div>
+        <div class="meta__item">
+          <div class="meta__label">Total</div>
+          <div class="meta__value">S/ {{ (vm?.total ?? 0) | number:'1.2-2' }}</div>
+        </div>
+      </div>
+
+      <div class="table-wrap" *ngIf="vm.detalle?.length; else empty">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th class="col-item">Item</th>
+              <th class="col-tipo">Tipo</th>
+              <th>Descripción</th>
+              <th class="col-num">Cant.</th>
+              <th class="col-num">P. Unit</th>
+              <th class="col-num">Importe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of vm.detalle">
+              <td class="col-item">{{ d.item }}</td>
+              <td class="col-tipo">{{ d.tipoItem }}</td>
+              <td class="col-desc">{{ d.descripcion }}</td>
+              <td class="col-num">{{ d.cantidad }}</td>
+              <td class="col-num">S/ {{ d.precioUnitario | number:'1.2-2' }}</td>
+              <td class="col-num">S/ {{ d.importe | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #empty>
+        <div class="state">No hay detalle para mostrar.</div>
+      </ng-template>
+    </ng-container>
+  </div>
+</div>

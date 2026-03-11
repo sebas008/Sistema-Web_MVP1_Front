@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>Nuevo repuesto</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="form">
+    <div class="grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Código</mat-label>
+        <input matInput formControlName="codigo" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Categoría</mat-label>
+        <input matInput formControlName="categoria" placeholder="TipoProducto" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Precio</mat-label>
+        <input matInput type="number" formControlName="precio" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Stock inicial</mat-label>
+        <input matInput type="number" formControlName="stockInicial" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Usuario</mat-label>
+        <input matInput formControlName="usuario" />
+      </mat-form-field>
+    </div>
+
+    <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cerrar()" [disabled]="loading">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="guardar()" [disabled]="loading">
+    <mat-progress-spinner *ngIf="loading" diameter="18" mode="indeterminate"></mat-progress-spinner>
+    <span *ngIf="!loading">Guardar</span>
+  </button>
+</mat-dialog-actions>

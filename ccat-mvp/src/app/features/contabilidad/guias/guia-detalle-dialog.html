@@ -1,0 +1,87 @@
+<div class="dlg">
+  <div class="dlg__header">
+    <div>
+      <div class="dlg__title">Detalle de guía</div>
+      <div class="dlg__subtitle" *ngIf="guia?.numero">{{ guia?.numero }}</div>
+    </div>
+
+    <button type="button" class="btn btn--ghost" mat-dialog-close>Cerrar</button>
+  </div>
+
+  <div class="dlg__body">
+    <div class="state" *ngIf="loading">
+      <mat-progress-spinner diameter="22" mode="indeterminate"></mat-progress-spinner>
+      <span>Cargando...</span>
+    </div>
+
+    <div class="error" *ngIf="!loading && errorMsg">{{ errorMsg }}</div>
+
+    <ng-container *ngIf="!loading && guia">
+      <div class="meta">
+        <div class="meta__item">
+          <div class="meta__label">N°</div>
+          <div class="meta__value">{{ guia.numero || '-' }}</div>
+        </div>
+
+        <div class="meta__item">
+          <div class="meta__label">Estado</div>
+          <div class="meta__value">
+            <span class="chip" [class.bad]="(guia.estado||'').toUpperCase()==='ANULADA'">{{ guia.estado || '-' }}</span>
+          </div>
+        </div>
+
+        <div class="meta__item">
+          <div class="meta__label">Fecha</div>
+          <div class="meta__value">{{ guia.fecha | date:'yyyy-MM-dd' }}</div>
+        </div>
+
+        <div class="meta__item">
+          <div class="meta__label">Tipo</div>
+          <div class="meta__value">{{ guia.tipo || '-' }}</div>
+        </div>
+
+        <div class="meta__item meta__item--wide">
+          <div class="meta__label">Motivo</div>
+          <div class="meta__value">{{ guia.motivoTraslado || '-' }}</div>
+        </div>
+
+        <div class="meta__item meta__item--wide">
+          <div class="meta__label">Punto partida</div>
+          <div class="meta__value">{{ guia.puntoPartida || '-' }}</div>
+        </div>
+
+        <div class="meta__item meta__item--wide">
+          <div class="meta__label">Punto llegada</div>
+          <div class="meta__value">{{ guia.puntoLlegada || '-' }}</div>
+        </div>
+      </div>
+
+      <div class="section-title">Detalle</div>
+
+      <div class="table-wrap" *ngIf="guia.detalle?.length; else empty">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th class="col-item">Item</th>
+              <th class="col-type">Tipo</th>
+              <th>Descripción</th>
+              <th class="col-num">Cant.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of guia.detalle; let i = index">
+              <td class="col-item">{{ d.item ?? (i + 1) }}</td>
+              <td class="col-type">{{ d.tipo || '-' }}</td>
+              <td class="col-desc">{{ d.descripcion }}</td>
+              <td class="col-num">{{ d.cantidad }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #empty>
+        <div class="empty">No hay detalle para mostrar.</div>
+      </ng-template>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,87 @@
+<div class="compra-detalle-modal">
+  <div class="modal-header">
+    <div class="header-copy">
+      <h2>Detalle de compra</h2>
+      <p class="subtitle">Resumen y líneas registradas de la compra</p>
+    </div>
+
+    <button type="button" class="btn-cerrar" (click)="cerrar()">
+      Cerrar
+    </button>
+  </div>
+
+  <div class="state" *ngIf="loading">
+    <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
+    <span>Cargando...</span>
+  </div>
+
+  <div class="error" *ngIf="!loading && errorMsg">{{ errorMsg }}</div>
+
+  <ng-container *ngIf="!loading && compra as c">
+    <div class="resumen-grid">
+      <div class="resumen-card">
+        <span class="label">N°</span>
+        <strong>{{ c.numero || '-' }}</strong>
+      </div>
+
+      <div class="resumen-card">
+        <span class="label">Fecha</span>
+        <strong>{{ c.fecha | date:'yyyy-MM-dd' }}</strong>
+      </div>
+
+      <div class="resumen-card">
+        <span class="label">Estado</span>
+        <span class="estado-badge" [ngClass]="(c.estado || '').toLowerCase()">
+          {{ c.estado || '-' }}
+        </span>
+      </div>
+
+      <div class="resumen-card resumen-card--wide">
+        <span class="label">Proveedor</span>
+        <strong>{{ c.proveedor || '-' }}</strong>
+      </div>
+
+      <div class="resumen-card">
+        <span class="label">Total</span>
+        <strong>{{ c.total | currency:'PEN':'symbol':'1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <div class="detalle-section">
+      <div class="detalle-header">
+        <h3>Detalle</h3>
+        <span class="detalle-count">{{ (c.detalle || []).length }} ítem(s)</span>
+      </div>
+
+      <div class="detalle-table-wrap" *ngIf="c.detalle?.length; else sinDetalle">
+        <table class="detalle-table">
+          <thead>
+            <tr>
+              <th class="col-item">Ítem</th>
+              <th>Descripción</th>
+              <th class="col-num">Cantidad</th>
+              <th class="col-num">P. unit.</th>
+              <th class="col-num">Importe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of c.detalle">
+              <td class="col-item">{{ item.item }}</td>
+              <td>{{ item.descripcion || '-' }}</td>
+              <td class="col-num">{{ item.cantidad }}</td>
+              <td class="col-num">{{ item.precioUnitario | currency:'PEN':'symbol':'1.2-2' }}</td>
+              <td class="col-num">{{ item.importe | currency:'PEN':'symbol':'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #sinDetalle>
+        <div class="empty-state">
+          <div class="empty-title">No hay detalle para mostrar.</div>
+          <div class="empty-text">Esta compra no tiene líneas registradas o el detalle aún no fue cargado.</div>
+        </div>
+      </ng-template>
+    </div>
+  </ng-container>
+</div>

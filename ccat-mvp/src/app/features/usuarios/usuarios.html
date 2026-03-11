@@ -1,10 +1,14 @@
 <div class="page-head">
   <div>
     <h1>Usuarios</h1>
-    <p>Gestión de usuarios, roles y estado. (MVP listo para conectar API)</p>
+    <p>Gestión de usuarios, roles y estado.</p>
   </div>
 
   <div class="actions">
+    <button mat-stroked-button (click)="cargar()" [disabled]="loading">
+      <mat-icon>refresh</mat-icon>
+      Refrescar
+    </button>
     <button mat-raised-button color="primary" (click)="nuevoUsuario()">
       <mat-icon>person_add</mat-icon>
       Nuevo usuario
@@ -92,17 +96,11 @@
           <mat-icon>security</mat-icon>
         </button>
 
-        <button mat-icon-button (click)="cambiarPassword(u)" matTooltip="Cambiar password">
-          <mat-icon>key</mat-icon>
-        </button>
 
         <button mat-icon-button (click)="toggleActivo(u)" matTooltip="Activar / Desactivar">
           <mat-icon>{{ u.activo ? 'toggle_on' : 'toggle_off' }}</mat-icon>
         </button>
 
-        <button mat-icon-button color="warn" (click)="eliminar(u)" matTooltip="Eliminar">
-          <mat-icon>delete</mat-icon>
-        </button>
       </td>
     </ng-container>
 

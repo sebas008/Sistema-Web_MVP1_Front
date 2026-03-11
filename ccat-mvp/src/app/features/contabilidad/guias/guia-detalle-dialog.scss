@@ -1,0 +1,156 @@
+.dlg{
+  width: min(1100px, 95vw);
+  max-height: min(88vh, 820px);
+  display:flex;
+  flex-direction:column;
+}
+
+.dlg__header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:18px 20px 8px 20px;
+}
+
+.dlg__title{
+  font-size:22px;
+  font-weight:900;
+}
+
+.dlg__subtitle{
+  margin-top:4px;
+  color:#6b7280;
+  font-weight:700;
+}
+
+.dlg__body{
+  padding:10px 20px 18px 20px;
+  overflow:auto;
+}
+
+.state{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 0;
+  color:#555;
+}
+
+.error{
+  color:#b00020;
+  font-weight:700;
+  padding:8px 0;
+}
+
+.meta{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.meta__item{
+  background:#fff5f5;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:16px;
+  padding:10px 12px;
+  min-height:56px;
+}
+
+.meta__item--wide{
+  grid-column: 1 / -1;
+}
+
+.meta__label{
+  font-size:12px;
+  color:#6b7280;
+  font-weight:800;
+}
+
+.meta__value{
+  font-size:16px;
+  font-weight:900;
+  color:#111827;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.chip{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.18);
+  background:#fff;
+  font-weight:900;
+  font-size:12px;
+}
+
+.chip.bad{
+  background:#fff1f2;
+  border-color:#fecaca;
+  color:#b91c1c;
+}
+
+.section-title{
+  margin:6px 0 10px;
+  font-weight:900;
+  color:#111827;
+}
+
+.table-wrap{
+  width:100%;
+  overflow:auto;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.08);
+}
+
+.tbl{
+  width:100%;
+  min-width:820px;
+  border-collapse:collapse;
+  background:#fff;
+}
+
+.tbl th, .tbl td{
+  padding:12px 12px;
+  border-bottom:1px solid rgba(0,0,0,.08);
+  vertical-align:top;
+}
+
+.tbl thead th{
+  background: rgba(255,233,233,.6);
+  font-weight:900;
+  color:#374151;
+}
+
+.col-item{ width:70px; }
+.col-type{ width:140px; }
+.col-num{ width:140px; text-align:right; }
+.col-desc{ min-width:360px; }
+
+.empty{
+  color:#6b7280;
+  padding:12px 0;
+}
+
+.btn{
+  height:40px;
+  padding:0 14px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.18);
+  background:#fff;
+  cursor:pointer;
+  font-weight:800;
+}
+
+.btn--ghost{
+  background:#fff;
+}
+
+@media (max-width: 960px){
+  .meta{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tbl{ min-width:720px; }
+}

@@ -6,21 +6,39 @@ export type GuiaResponse = {
   idGuia: number;
   numero: string;     // GUIA-0001
   fecha: string;      // ISO
-  estado: string;     // EMITIDA / ANULADA / PENDIENTE (según tu lógica)
-  referencia?: string | null;
+  tipo?: string | null;
+  estado: string;     // EMITIDA
+  motivoTraslado?: string | null;
+  puntoPartida?: string | null;
+  puntoLlegada?: string | null;
   totalItems?: number | null;
-  cliente?: string | null;
+  detalle?: GuiaDetalleItem[];
+};
+
+export type GuiaDetalleItem = {
+  item?: number;
+  tipo?: string; // PRODUCTO / VEHICULO / SERVICIO
+  idProducto?: number | null;
+  idVehiculo?: number | null;
+  descripcion: string;
+  cantidad: number;
 };
 
 export type GuiaEmitirRequest = {
-  idCliente: number;
-  fecha?: string | null;
+  serie: string;
+  fechaEmision: string; // ISO date
+  tipo: string;
+  motivoTraslado?: string | null;
+  puntoPartida?: string | null;
+  puntoLlegada?: string | null;
+  afectaStock: boolean;
+  detalle: GuiaDetalleItem[];
   usuario: string;
 };
 
 @Injectable({ providedIn: 'root' })
 export class GuiasService {
-  private readonly baseUrl = `${environment.apiBaseUrl}/contabilidad/guias`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/contabilidad/guias`;
 
   constructor(private http: HttpClient) {}
 
@@ -36,5 +54,9 @@ export class GuiasService {
 
   emitir(req: GuiaEmitirRequest) {
     return this.http.post<GuiaResponse>(`${this.baseUrl}/emitir`, req);
+  }
+
+  anular(id: number) {
+    return this.http.post<GuiaResponse>(`${this.baseUrl}/${id}/anular`, {});
   }
 }

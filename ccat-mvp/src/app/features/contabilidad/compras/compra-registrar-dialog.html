@@ -1,0 +1,88 @@
+<h2 mat-dialog-title>Registrar compra</h2>
+
+<div mat-dialog-content class="dialog-body" [formGroup]="form">
+  <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+  <div class="grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Serie</mat-label>
+      <input matInput [formControl]="form.controls.serie" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Proveedor</mat-label>
+      <mat-select [formControl]="form.controls.idProveedor">
+        <mat-option *ngFor="let p of proveedores" [value]="p.idProveedor">
+          {{ p.razonSocial }} <span *ngIf="p.ruc">({{ p.ruc }})</span>
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Fecha emisión</mat-label>
+      <input matInput type="date" [formControl]="form.controls.fechaEmision" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Moneda</mat-label>
+      <mat-select [formControl]="form.controls.moneda">
+        <mat-option value="PEN">PEN</mat-option>
+        <mat-option value="USD">USD</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <h3>Detalle</h3>
+
+  <div formArrayName="detalle">
+    <div class="detalle" *ngFor="let _ of detalle.controls; let i = index" [formGroupName]="i">
+    <mat-form-field appearance="outline" class="w-220">
+      <mat-label>Producto</mat-label>
+      <mat-select formControlName="idProducto" (selectionChange)="onProductoChange(i)">
+        <mat-option [value]="null">(Sin producto)</mat-option>
+        <mat-option *ngFor="let p of productos" [value]="p.idProducto">
+          {{ p.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-360">
+      <mat-label>Descripción</mat-label>
+      <input matInput formControlName="descripcion" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-120">
+      <mat-label>Cantidad</mat-label>
+      <input matInput type="number" step="0.0001" formControlName="cantidad" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-140">
+      <mat-label>Precio unit.</mat-label>
+      <input matInput type="number" step="0.01" formControlName="precioUnitario" />
+    </mat-form-field>
+
+      <button mat-icon-button color="warn" type="button" (click)="removeItem(i)" aria-label="Eliminar">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <button mat-stroked-button type="button" (click)="addItem()">
+    <mat-icon>add</mat-icon>
+    Agregar ítem
+  </button>
+
+  <div class="totales">
+    <b>Total:</b> {{ total | number:'1.2-2' }}
+  </div>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="cerrar()" [disabled]="loading">Cancelar</button>
+  <button mat-flat-button color="primary" type="button" (click)="guardar()" [disabled]="loading">
+    <mat-progress-spinner *ngIf="loading" diameter="18" mode="indeterminate"></mat-progress-spinner>
+    <span *ngIf="!loading">Guardar</span>
+  </button>
+</div>

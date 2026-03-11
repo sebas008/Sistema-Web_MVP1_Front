@@ -1,0 +1,68 @@
+.page { padding: 18px; border-radius: 16px; }
+
+.header{
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  margin-bottom: 14px;
+
+  .left{ display:flex; gap:12px; align-items:center; }
+  .badge{
+    width:44px; height:44px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.10);
+  }
+  h1{ margin:0; font-size:20px; }
+  p{ margin:2px 0 0 0; opacity:.75; font-size:12px; }
+
+  .right{ display:flex; gap:8px; align-items:center; }
+}
+
+.filters{
+  display:flex; gap:12px; align-items:center;
+  margin: 10px 0 14px 0;
+
+  .q{ flex: 1; min-width: 320px; }
+}
+
+.table-wrap{
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.cell-main{
+  .name{ font-weight: 600; }
+  .sub{ opacity:.70; font-size: 12px; }
+}
+
+.pill{
+  display:inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  margin-right: 6px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+.doc{ opacity:.85; }
+
+.estado{
+  display:flex; align-items:center; gap:8px;
+  .dot{
+    width:10px; height:10px; border-radius:50%;
+    background: #666;
+    &.on{ background: #e53935; } // rojo
+  }
+}
+
+.actions{
+  text-align:right;
+}
+
+.empty{
+  display:flex; gap:10px; align-items:center;
+  padding: 18px;
+  .t{ font-weight:600; }
+  .s{ opacity:.75; font-size:12px; }
+}

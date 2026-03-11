@@ -1,0 +1,7 @@
+/* Pegar SOLO el bloque .dlg y reemplazar el actual */
+.dlg{
+  width: min(1100px, 95vw);
+  max-height: min(88vh, 820px);
+  display:flex;
+  flex-direction:column;
+}

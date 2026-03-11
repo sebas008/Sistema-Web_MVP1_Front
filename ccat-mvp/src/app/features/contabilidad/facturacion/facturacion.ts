@@ -1,6 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { finalize, timeout } from 'rxjs/operators';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
@@ -9,11 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { FacturacionService, FacturaResponse } from '../../../core/services/contabilidad/facturacion';
+import { FacturaEmitirDialogComponent } from './factura-emitir-dialog';
+import { FacturaDetalleDialogComponent } from './factura-detalle-dialog';
+
 @Component({
   standalone: true,
   selector: 'app-facturacion',
@@ -27,12 +30,11 @@ import { FacturacionService, FacturaResponse } from '../../../core/services/cont
     MatChipsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDividerModule,
     MatProgressSpinnerModule,
     MatDialogModule
   ],
-  templateUrl: './facturacion.component.html',
-  styleUrls: ['./facturacion.component.scss']
+  templateUrl: './facturacion.html',
+  styleUrls: ['./facturacion.scss']
 })
 export class FacturacionComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -41,66 +43,71 @@ export class FacturacionComponent implements OnInit {
 
   loading = false;
   errorMsg = '';
-
   displayedColumns = ['numero', 'cliente', 'fecha', 'total', 'estado', 'acciones'];
   dataSource: FacturaResponse[] = [];
-
-  form = this.fb.group({
-    q: ['']
-  });
+  form = this.fb.group({ q: [''] });
 
   ngOnInit(): void {
     this.cargar();
   }
 
-  cargar() {
+  cargar(): void {
+    if (this.loading) return;
+
     this.loading = true;
     this.errorMsg = '';
-
     const q = this.form.value.q?.trim() || null;
 
-    this.api.listar(q).subscribe({
-      next: (rows) => {
-        this.dataSource = rows ?? [];
-        this.loading = false;
-      },
-      error: (err) => {
-        this.loading = false;
-        this.errorMsg = err?.error?.message ?? 'No se pudo cargar facturación.';
-      }
-    });
+    this.api.listar(q)
+      .pipe(
+        timeout(8000),
+        finalize(() => { this.loading = false; })
+      )
+      .subscribe({
+        next: (rows) => {
+          this.dataSource = rows ?? [];
+        },
+        error: (err: any) => {
+          this.errorMsg = err?.name === 'TimeoutError'
+            ? 'La consulta tardó demasiado. Intenta actualizar otra vez.'
+            : (err?.error?.detail ?? err?.error?.message ?? 'No se pudo cargar facturación.');
+        }
+      });
   }
 
-  limpiar() {
+  limpiar(): void {
     this.form.patchValue({ q: '' });
     this.cargar();
   }
 
-  emitirDemo() {
-    // MVP: emitir con cliente fijo para demo (luego haces modal con IdCliente real)
-    this.loading = true;
-    this.errorMsg = '';
+  emitir(): void {
+    const ref = this.dialog.open(FacturaEmitirDialogComponent, { width: '920px' });
+    ref.afterClosed().subscribe((ok: boolean) => {
+      if (ok) this.cargar();
+    });
+  }
 
-    this.api.emitir({ idCliente: 1, usuario: 'admin' }).subscribe({
+  anular(row: FacturaResponse): void {
+    const estado = (row.estado || '').toUpperCase();
+    if (estado === 'ANULADA') return;
+    if (!confirm('¿Anular la factura?')) return;
+
+    this.api.anular(row.idFactura).subscribe({
       next: () => this.cargar(),
-      error: (err) => {
-        this.loading = false;
-        this.errorMsg = err?.error?.message ?? 'No se pudo emitir la factura.';
+      error: (err: any) => {
+        this.errorMsg = err?.error?.detail ?? err?.error?.message ?? 'No se pudo anular.';
       }
     });
   }
 
-  ver(row: FacturaResponse) {
-    // MVP simple: alert. Si quieres, lo cambiamos por modal con detalle.
-    alert(`Factura: ${row.numero}\nEstado: ${row.estado}\nTotal: S/ ${row.total}`);
+  ver(row: FacturaResponse): void {
+    this.dialog.open(FacturaDetalleDialogComponent, {
+      width: '980px',
+      maxWidth: '95vw',
+      data: { idFactura: row.idFactura }
+    });
   }
 
-  anular(row: FacturaResponse) {
-    // Si tu API tiene endpoint para anular, lo conectamos luego.
-    alert(`MVP: Anular ${row.numero} (endpoint pendiente)`);
-  }
-
-  // KPIs
   get totalEmitidas(): number {
     return this.dataSource.filter(x => (x.estado || '').toUpperCase() === 'EMITIDA').length;
   }

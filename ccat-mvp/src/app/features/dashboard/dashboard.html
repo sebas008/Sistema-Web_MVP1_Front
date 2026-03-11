@@ -1,17 +1,21 @@
 <div class="head">
   <div>
     <h1>Dashboard</h1>
-    <p>Resumen general del sistema (MVP). Listo para conectar datos reales.</p>
+    <p>Resumen general del sistema.</p>
   </div>
 
   <div class="actions">
-    <button mat-raised-button color="primary">
-      <mat-icon>add</mat-icon>
-      Nuevo movimiento
-    </button>
-    <button mat-stroked-button>
-      <mat-icon>search</mat-icon>
-      Buscar
+    <button
+      mat-stroked-button
+      type="button"
+      class="kpi-action"
+      (click)="cargar()"
+      [attr.aria-busy]="loading"
+      [class.is-loading]="loading"
+      aria-label="Actualizar KPI's"
+    >
+      <mat-icon>{{ loading ? 'hourglass_top' : 'refresh' }}</mat-icon>
+      {{ loading ? "Actualizando..." : "Ver KPI's" }}
     </button>
   </div>
 </div>
@@ -28,7 +32,7 @@
   </mat-card>
 </div>
 
-<div class="grid">
+<section class="quick-panel">
   <mat-card class="panel">
     <div class="panel-head">
       <div>
@@ -56,44 +60,4 @@
       </button>
     </div>
   </mat-card>
-
-  <mat-card class="panel">
-    <div class="panel-head">
-      <div>
-        <h3>Actividad reciente</h3>
-        <span>Placeholder para mostrar operaciones</span>
-      </div>
-    </div>
-
-    <mat-divider></mat-divider>
-
-    <div class="list">
-      <div class="item">
-        <div class="dot ok"></div>
-        <div class="txt">
-          <b>Stock</b> inicial cargado
-          <div class="muted">Inventario · hace 2 min</div>
-        </div>
-        <span class="tag">OK</span>
-      </div>
-
-      <div class="item">
-        <div class="dot warn"></div>
-        <div class="txt">
-          <b>Compra</b> registrada
-          <div class="muted">Compras · hace 10 min</div>
-        </div>
-        <span class="tag">COMP</span>
-      </div>
-
-      <div class="item">
-        <div class="dot info"></div>
-        <div class="txt">
-          <b>Usuario</b> creado
-          <div class="muted">Usuarios · hoy</div>
-        </div>
-        <span class="tag">USR</span>
-      </div>
-    </div>
-  </mat-card>
-</div>
+</section>

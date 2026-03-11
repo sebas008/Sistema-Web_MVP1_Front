@@ -1,28 +1,92 @@
 @use '@angular/material' as mat;
 
-/* ================================
-   Angular Material Theme (Gris + Rojo)
-   ================================ */
+/*
+  CCAT UI Refresh (MVP1)
+  - Mejor contraste y tipografía
+  - Cards/Tablas más compactas
+  - Espaciado consistente
+*/
 
 html {
   height: 100%;
-
   @include mat.theme((
     color: (
       primary: mat.$red-palette,
-      tertiary: mat.$gray-palette,
+      tertiary: mat.$blue-palette,
     ),
     typography: Roboto,
     density: 0,
   ));
 }
 
+:root {
+  --ccat-radius: 16px;
+  --ccat-radius-sm: 12px;
+  --ccat-shadow: 0 10px 30px rgba(16, 24, 40, .08);
+  --ccat-border: 1px solid rgba(16, 24, 40, .08);
+  --ccat-muted: rgba(16, 24, 40, .62);
+}
+
 body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
   margin: 0;
   height: 100%;
-  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  background-color: #f4f5f7;
-  color: #2e2e2e;
-  font-family: Roboto, Arial, sans-serif;
+/* Cards */
+.mat-mdc-card {
+  border-radius: var(--ccat-radius);
+  border: var(--ccat-border);
+  box-shadow: none;
+}
+
+.mat-mdc-card:hover {
+  box-shadow: var(--ccat-shadow);
+  transition: box-shadow .15s ease;
+}
+
+/* Buttons */
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  border-radius: 999px;
+}
+
+/* Tables */
+.mat-mdc-table {
+  border-radius: var(--ccat-radius);
+  overflow: hidden;
+}
+
+.mat-mdc-header-row,
+.mat-mdc-row {
+  height: 48px;
+}
+
+.mat-mdc-header-cell {
+  font-weight: 700;
+  color: rgba(16, 24, 40, .74);
+}
+
+/* Inputs */
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+/* Page headings */
+h1 {
+  margin: 0;
+  font: var(--mat-sys-headline-medium);
+  letter-spacing: -0.3px;
+}
+
+p {
+  margin: 6px 0 0;
+  color: var(--ccat-muted);
 }

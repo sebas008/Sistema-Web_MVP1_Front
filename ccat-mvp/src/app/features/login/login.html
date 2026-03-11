@@ -2,7 +2,7 @@
   <mat-card class="login-card">
 
     <h1 class="title">CCAT</h1>
-    <p class="subtitle">Sistema de Gestión · MVP</p>
+    <p class="subtitle">Sistema de Gestión</p>
 
     <form [formGroup]="form" (ngSubmit)="login()">
 
@@ -38,10 +38,12 @@
         Ingresar
       </button>
 
+      <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
     </form>
 
     <div class="footer">
-      <span>MVP1 · CCAT © 2026</span>
+      <span>CCAT © 2026</span>
     </div>
 
   </mat-card>

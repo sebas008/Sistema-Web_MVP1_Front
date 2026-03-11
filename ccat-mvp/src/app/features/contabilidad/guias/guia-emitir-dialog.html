@@ -1,0 +1,140 @@
+<div class="dlg">
+  <div class="dlg__header">
+    <div>
+      <div class="dlg__title">Emitir guía</div>
+      <div class="dlg__subtitle">Complete los datos y agregue al menos un ítem</div>
+    </div>
+    <button type="button" class="btn btn--ghost" (click)="cerrar()">Cerrar</button>
+  </div>
+
+  <div class="dlg__body">
+    <div class="state" *ngIf="loading">
+      <mat-progress-spinner diameter="22" mode="indeterminate"></mat-progress-spinner>
+      <span>Cargando...</span>
+    </div>
+
+    <div class="error" *ngIf="!loading && errorMsg">{{ errorMsg }}</div>
+
+    <form *ngIf="!loading" [formGroup]="form" class="form">
+      <div class="grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Serie</mat-label>
+          <input matInput formControlName="serie" placeholder="G001" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha</mat-label>
+          <input matInput type="date" formControlName="fechaEmision" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo</mat-label>
+          <mat-select formControlName="tipo">
+            <mat-option *ngFor="let t of tipos" [value]="t.value">{{ t.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Motivo</mat-label>
+          <mat-select formControlName="motivoTraslado">
+            <mat-option *ngFor="let m of motivos()" [value]="m">{{ m }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Punto partida</mat-label>
+          <input matInput formControlName="puntoPartida" placeholder="Dirección de partida" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Punto llegada</mat-label>
+          <input matInput formControlName="puntoLlegada" placeholder="Dirección de llegada" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Afecta stock</mat-label>
+          <mat-select formControlName="afectaStock">
+            <mat-option [value]="true">Sí</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Usuario</mat-label>
+          <input matInput formControlName="usuario" />
+        </mat-form-field>
+      </div>
+
+      <div class="section">
+        <div class="section__head">
+          <div class="section__title">Detalle</div>
+          <button type="button" class="btn btn--outline" (click)="agregarItem()">
+            <mat-icon>add</mat-icon>
+            Agregar ítem
+          </button>
+        </div>
+
+        <div class="items" formArrayName="detalle">
+          <div class="item-card" *ngFor="let it of detalle.controls; let i = index" [formGroupName]="i">
+            <div class="item-card__head">
+              <div class="item-card__title">Ítem {{ i + 1 }}</div>
+              <button type="button" class="icon-btn" (click)="quitarItem(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+
+            <div class="item-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Tipo*</mat-label>
+                <mat-select formControlName="tipo">
+                  <mat-option value="PRODUCTO">Producto</mat-option>
+                  <mat-option value="VEHICULO">Vehículo</mat-option>
+                  <mat-option value="SERVICIO">Servicio</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" *ngIf="it.value.tipo === 'PRODUCTO'">
+                <mat-label>Producto</mat-label>
+                <mat-select formControlName="idProducto" (selectionChange)="seleccionarProducto(i)">
+                  <mat-option *ngFor="let p of productos" [value]="p.idProducto">
+                    {{ p.idProducto }} - {{ p.nombre }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" *ngIf="it.value.tipo === 'VEHICULO'">
+                <mat-label>Vehículo</mat-label>
+                <mat-select formControlName="idVehiculo" (selectionChange)="seleccionarVehiculo(i)">
+                  <mat-option *ngFor="let v of vehiculos" [value]="v.idVehiculo">
+                    {{ v.marca }} {{ v.modelo }} ({{ v.vin || '-' }})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="span-2">
+                <mat-label>Descripción*</mat-label>
+                <input matInput formControlName="descripcion" placeholder="Descripción del ítem" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Cantidad*</mat-label>
+                <input matInput type="number" formControlName="cantidad" min="0.01" step="0.01" />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="empty" *ngIf="detalle.length === 0">
+            Agrega al menos un ítem para poder emitir la guía.
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="dlg__footer">
+    <button type="button" class="btn btn--outline" (click)="cerrar()">Cancelar</button>
+    <button type="button" class="btn btn--primary" (click)="emitir()" [disabled]="loading || detalle.length === 0">
+      Emitir
+    </button>
+  </div>
+</div>

@@ -9,17 +9,32 @@ export type FacturaResponse = {
   total: number;
   estado: string;     // EMITIDA / ANULADA
   cliente?: string | null;
+  detalle?: FacturaDetalleItem[];
+};
+
+export type FacturaDetalleItem = {
+  item?: number;
+  tipo?: string; // PRODUCTO / SERVICIO
+  idProducto?: number | null;
+  descripcion: string;
+  cantidad: number;
+  precioUnitario: number;
+  importe?: number;
 };
 
 export type FacturaEmitirRequest = {
+  serie: string;
   idCliente: number;
-  fecha?: string | null;   // ISO
+  fechaEmision: string; // ISO date
+  moneda: string;
+  afectaStock: boolean;
+  detalle: FacturaDetalleItem[];
   usuario: string;
 };
 
 @Injectable({ providedIn: 'root' })
 export class FacturacionService {
-  private readonly baseUrl = `${environment.apiBaseUrl}/contabilidad/facturas`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/contabilidad/facturas`;
 
   constructor(private http: HttpClient) {}
 
@@ -35,5 +50,9 @@ export class FacturacionService {
 
   emitir(req: FacturaEmitirRequest) {
     return this.http.post<FacturaResponse>(`${this.baseUrl}/emitir`, req);
+  }
+
+  anular(id: number) {
+    return this.http.post<FacturaResponse>(`${this.baseUrl}/${id}/anular`, {});
   }
 }
