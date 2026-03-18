@@ -105,10 +105,14 @@
               <mat-form-field appearance="outline" *ngIf="it.value.tipo === 'VEHICULO'">
                 <mat-label>Vehículo</mat-label>
                 <mat-select formControlName="idVehiculo" (selectionChange)="seleccionarVehiculo(i)">
+                  <mat-option *ngIf="vehiculos.length === 0" [value]="null" disabled>
+                    No hay vehículos con stock disponible
+                  </mat-option>
                   <mat-option *ngFor="let v of vehiculos" [value]="v.idVehiculo">
-                    {{ v.marca }} {{ v.modelo }} ({{ v.vin || '-' }})
+                    {{ vehiculoLabel(v) }}
                   </mat-option>
                 </mat-select>
+                <mat-hint *ngIf="vehiculosSinStock > 0">Se ocultaron {{ vehiculosSinStock }} vehículo(s) sin stock.</mat-hint>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="span-2">

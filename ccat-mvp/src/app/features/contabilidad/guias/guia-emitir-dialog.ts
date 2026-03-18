@@ -48,6 +48,7 @@ export class GuiaEmitirDialogComponent {
 
   productos: StockProductoResponse[] = [];
   vehiculos: VehiculoNuevoResponse[] = [];
+  vehiculosSinStock = 0;
 
   tipos = [
     { value: 'REMISION', label: 'Remisión' },
@@ -110,11 +111,14 @@ export class GuiaEmitirDialogComponent {
 
     this.vehiculosApi.listar(null, true).subscribe({
       next: (v) => {
-        this.vehiculos = v ?? [];
+        const rows = v ?? [];
+        this.vehiculosSinStock = rows.filter((x) => Number(x.stockActual ?? 0) <= 0).length;
+        this.vehiculos = rows.filter((x) => Number(x.stockActual ?? 0) > 0);
         this.cdr.markForCheck();
       },
       error: () => {
         this.vehiculos = [];
+        this.vehiculosSinStock = 0;
         this.cdr.markForCheck();
       },
     });
@@ -154,9 +158,47 @@ export class GuiaEmitirDialogComponent {
     if (v) g.get('descripcion')?.setValue(`${v.marca ?? ''} ${v.modelo ?? ''} ${v.vin ?? ''}`.trim());
   }
 
+  vehiculoLabel(v: VehiculoNuevoResponse): string {
+    const stock = Number(v.stockActual ?? 0);
+    return `${v.marca ?? ''} ${v.modelo ?? ''} (${v.vin || '-'}) · Stock: ${stock}`.trim();
+  }
+
+  private validarDetalleAntesDeEmitir(): string | null {
+    const afectaStock = !!this.form.controls.afectaStock.value;
+
+    for (let i = 0; i < this.detalle.length; i++) {
+      const g = this.detalle.at(i);
+      const tipo = String(g.get('tipo')?.value ?? '');
+
+      if (tipo === 'VEHICULO') {
+        const idVehiculo = Number(g.get('idVehiculo')?.value ?? 0);
+        const vehiculo = this.vehiculos.find((x) => Number(x.idVehiculo ?? 0) === idVehiculo);
+        const cantidad = Number(g.get('cantidad')?.value ?? 0);
+
+        if (!idVehiculo || !vehiculo)
+          return `El ítem ${i + 1} requiere un vehículo con stock disponible.`;
+
+        if (cantidad <= 0)
+          return `El ítem ${i + 1} debe tener cantidad mayor a 0.`;
+
+        if (afectaStock && Number(vehiculo.stockActual ?? 0) < cantidad)
+          return `El vehículo seleccionado en el ítem ${i + 1} no tiene stock suficiente.`;
+      }
+    }
+
+    return null;
+  }
+
   emitir() {
     if (this.form.invalid || this.detalle.length === 0) {
       this.form.markAllAsTouched();
+      return;
+    }
+
+    const validacionDetalle = this.validarDetalleAntesDeEmitir();
+    if (validacionDetalle) {
+      this.errorMsg$.next(validacionDetalle);
+      this.cdr.markForCheck();
       return;
     }
 

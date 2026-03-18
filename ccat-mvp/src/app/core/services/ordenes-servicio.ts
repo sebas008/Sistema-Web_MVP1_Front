@@ -63,7 +63,7 @@ export class OrdenesServicioService {
   constructor(private http: HttpClient) {}
 
   listar(q?: string | null, estado?: string | null): Observable<OrdenServicio[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_ts', Date.now().toString());
     if (q) params = params.set('q', q);
     if (estado) params = params.set('estado', estado);
     return this.http.get<OrdenServicio[]>(this.baseUrl, { params });

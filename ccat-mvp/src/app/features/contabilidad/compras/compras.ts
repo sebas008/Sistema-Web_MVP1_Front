@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -12,7 +13,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { finalize, timeout } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { filter, finalize, takeUntil, timeout } from 'rxjs/operators';
 
 import { ComprasService, CompraResponse } from '../../../core/services/contabilidad/compras';
 import { CompraRegistrarDialogComponent } from './compra-registrar-dialog';
@@ -39,10 +41,12 @@ import { CompraDetalleDialogComponent } from './compra-detalle-dialog';
   templateUrl: './compras.html',
   styleUrls: ['./compras.scss'],
 })
-export class ComprasComponent implements OnInit {
+export class ComprasComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private api = inject(ComprasService);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private destroy$ = new Subject<void>();
 
   loading = false;
   errorMsg = '';
@@ -55,9 +59,28 @@ export class ComprasComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => this.cargar(true), 0);
+
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event) => {
+        const url = event.urlAfterRedirects || event.url;
+        if (url.startsWith('/app/contabilidad/compras')) {
+          this.cargar(true);
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   cargar(fromInit = false): void {
+    if (this.loading && !fromInit) return;
+
     this.loading = true;
     this.errorMsg = '';
     const q = this.form.value.q?.trim() || null;
@@ -83,7 +106,7 @@ export class ComprasComponent implements OnInit {
 
   limpiar(): void {
     this.form.patchValue({ q: '' });
-    this.cargar(false);
+    this.cargar(true);
   }
 
   registrar(): void {
@@ -93,7 +116,7 @@ export class ComprasComponent implements OnInit {
       panelClass: 'ccat-dialog'
     });
     ref.afterClosed().subscribe((ok: boolean) => {
-      if (ok) this.cargar(false);
+      if (ok) this.cargar(true);
     });
   }
 
@@ -108,7 +131,7 @@ export class ComprasComponent implements OnInit {
     this.api.anular(row.idCompra)
       .pipe(finalize(() => { this.loading = false; }))
       .subscribe({
-        next: () => this.cargar(false),
+        next: () => this.cargar(true),
         error: (err) => {
           this.errorMsg = err?.error?.detail ?? err?.error?.message ?? 'No se pudo anular la compra.';
         }

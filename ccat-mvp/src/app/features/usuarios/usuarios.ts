@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NavigationEnd, Router } from '@angular/router';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
@@ -14,14 +15,13 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { FormsModule } from '@angular/forms';
 
-import { forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Subject, forkJoin, of } from 'rxjs';
+import { catchError, filter, map, takeUntil, timeout } from 'rxjs/operators';
 
 import { UsuariosService, UsuarioResponse } from '../../core/services/usuarios';
 import { AuthService } from '../../core/services/auth';
 import { UsuarioDialogComponent } from './usuario-dialog';
 import { UsuarioRolesDialogComponent } from './usuario-roles-dialog';
-
 
 type UsuarioRow = {
   idUsuario: number;
@@ -53,7 +53,8 @@ type UsuarioRow = {
   templateUrl: './usuarios.html',
   styleUrls: ['./usuarios.scss']
 })
-export class UsuariosComponent {
+export class UsuariosComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
   loading = false;
 
@@ -64,33 +65,59 @@ export class UsuariosComponent {
 
   private data: UsuarioRow[] = [];
 
-  constructor(private usuarios: UsuariosService, private auth: AuthService, private dialog: MatDialog) {
-    this.cargar();
+  constructor(private usuarios: UsuariosService, private auth: AuthService, private dialog: MatDialog, private router: Router) {}
+
+  ngOnInit(): void {
+    setTimeout(() => this.cargar(true), 0);
+
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event) => {
+        const url = event.urlAfterRedirects || event.url;
+        if (url.startsWith('/app/usuarios')) {
+          this.cargar(true);
+        }
+      });
   }
 
-  cargar(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  cargar(force = false): void {
+    if (this.loading && !force) return;
+
     this.loading = true;
-    this.usuarios.listar(null, this.soloActivos ? true : null).subscribe({
-      next: (rows) => {
-        this.data = rows.map(this.mapUsuario);
-        this.cargarRoles();
-        if (this.data.length === 0) this.loading = false;
-      },
-      error: (err) => {
-        console.error('Usuarios error:', err);
-        this.data = [];
-        this.loading = false;
-      }
-    });
+    this.usuarios.listar(null, this.soloActivos ? true : null)
+      .pipe(timeout(8000))
+      .subscribe({
+        next: (rows) => {
+          this.data = (rows ?? []).map(this.mapUsuario);
+          this.cargarRoles();
+          if (this.data.length === 0) this.loading = false;
+        },
+        error: (err) => {
+          console.error('Usuarios error:', err);
+          this.data = [];
+          this.loading = false;
+        }
+      });
   }
 
   private cargarRoles(): void {
-    if (this.data.length === 0) return;
+    if (this.data.length === 0) {
+      this.loading = false;
+      return;
+    }
 
-    // Carga roles por usuario (usp_Usuario_Get). Si falla para alguno, no rompe la tabla.
     forkJoin(
       this.data.map((u) =>
         this.usuarios.obtener(u.idUsuario).pipe(
+          timeout(8000),
           map((d) => ({ idUsuario: u.idUsuario, roles: (d.roles ?? []).map(r => r.nombre) })),
           catchError(() => of({ idUsuario: u.idUsuario, roles: [] as string[] }))
         )
@@ -131,21 +158,21 @@ export class UsuariosComponent {
   nuevoUsuario() {
     const ref = this.dialog.open(UsuarioDialogComponent, { width: '720px', data: null });
     ref.afterClosed().subscribe((ok: boolean) => {
-      if (ok) this.cargar();
+      if (ok) this.cargar(true);
     });
   }
 
   editar(u: UsuarioRow) {
     const ref = this.dialog.open(UsuarioDialogComponent, { width: '720px', data: u });
     ref.afterClosed().subscribe((ok: boolean) => {
-      if (ok) this.cargar();
+      if (ok) this.cargar(true);
     });
   }
 
   asignarRol(u: UsuarioRow) {
     const ref = this.dialog.open(UsuarioRolesDialogComponent, { width: '720px', data: u });
     ref.afterClosed().subscribe((ok: boolean) => {
-      if (ok) this.cargar();
+      if (ok) this.cargar(true);
     });
   }
 
@@ -157,7 +184,6 @@ export class UsuariosComponent {
       next: () => (u.activo = nuevoEstado),
       error: (err) => {
         console.error('Cambio estado error:', err);
-        // UI: revert
         u.activo = !nuevoEstado;
       }
     });

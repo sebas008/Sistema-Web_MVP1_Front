@@ -5,16 +5,16 @@ import { environment } from '../../../../environments/environment';
 export type FacturaResponse = {
   idFactura: number;
   numero: string;
-  fecha: string;      // ISO
+  fecha: string;
   total: number;
-  estado: string;     // EMITIDA / ANULADA
+  estado: string;
   cliente?: string | null;
   detalle?: FacturaDetalleItem[];
 };
 
 export type FacturaDetalleItem = {
   item?: number;
-  tipo?: string; // PRODUCTO / SERVICIO
+  tipo?: string;
   idProducto?: number | null;
   descripcion: string;
   cantidad: number;
@@ -25,7 +25,7 @@ export type FacturaDetalleItem = {
 export type FacturaEmitirRequest = {
   serie: string;
   idCliente: number;
-  fechaEmision: string; // ISO date
+  fechaEmision: string;
   moneda: string;
   afectaStock: boolean;
   detalle: FacturaDetalleItem[];
@@ -39,7 +39,7 @@ export class FacturacionService {
   constructor(private http: HttpClient) {}
 
   listar(q?: string | null) {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_ts', Date.now().toString());
     if (q) params = params.set('q', q);
     return this.http.get<FacturaResponse[]>(this.baseUrl, { params });
   }

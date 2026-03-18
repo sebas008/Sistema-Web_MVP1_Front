@@ -4,10 +4,10 @@ import { environment } from '../../../../environments/environment';
 
 export type CompraResponse = {
   idCompra: number;
-  numero: string;      // COMP-0001
-  fecha: string;       // ISO
+  numero: string;
+  fecha: string;
   total: number;
-  estado: string;      // REGISTRADA / ANULADA
+  estado: string;
   proveedor?: string | null;
   detalle?: CompraDetalleItem[];
 };
@@ -24,8 +24,8 @@ export type CompraDetalleItem = {
 export type CompraRegistrarRequest = {
   serie: string;
   idProveedor: number;
-  fechaEmision: string; // ISO date
-  moneda: string;       // PEN/USD
+  fechaEmision: string;
+  moneda: string;
   afectaStock: boolean;
   detalle: CompraDetalleItem[];
   usuario: string;
@@ -38,7 +38,7 @@ export class ComprasService {
   constructor(private http: HttpClient) {}
 
   listar(q?: string | null) {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_ts', Date.now().toString());
     if (q) params = params.set('q', q);
     return this.http.get<CompraResponse[]>(this.baseUrl, { params });
   }

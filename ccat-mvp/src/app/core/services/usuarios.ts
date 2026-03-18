@@ -55,7 +55,7 @@ export class UsuariosService {
   constructor(private http: HttpClient) {}
 
   listar(q?: string | null, activo?: boolean | null): Observable<UsuarioResponse[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_ts', Date.now().toString());
     if (q) params = params.set('q', q);
     if (activo !== null && activo !== undefined) params = params.set('activo', String(activo));
     return this.http.get<UsuarioResponse[]>(this.baseUrl, { params });

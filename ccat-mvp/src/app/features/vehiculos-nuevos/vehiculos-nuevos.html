@@ -1,7 +1,7 @@
 <div class="page-head">
   <div>
     <h1>Vehículos Nuevos</h1>
-    <p>Gestión de vehículos nuevos y stock disponible</p>
+    <p>Ingreso, modificación y consulta de vehículos nuevos</p>
   </div>
 
   <div class="actions">
@@ -20,7 +20,7 @@
   <div class="tools">
     <mat-form-field appearance="outline" class="w-100">
       <mat-label>Buscar</mat-label>
-      <input matInput placeholder="VIN, marca o modelo" [(ngModel)]="q" (ngModelChange)="cargar()" />
+      <input matInput placeholder="Código, VIN, marca, modelo o ubicación" [(ngModel)]="q" (ngModelChange)="cargar()" />
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
   </div>
@@ -31,41 +31,74 @@
   <div class="error" *ngIf="!loading && errorMsg">{{ errorMsg }}</div>
 
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z0" *ngIf="!loading">
-
-    <ng-container matColumnDef="vin">
-      <th mat-header-cell *matHeaderCellDef>VIN</th>
-      <td mat-cell *matCellDef="let v"><b>{{ v.vin }}</b></td>
+    <ng-container matColumnDef="codigo">
+      <th mat-header-cell *matHeaderCellDef>Código</th>
+      <td mat-cell *matCellDef="let v">
+        <div class="vehiculo">
+          <div class="marca">{{ v.codigoVehiculo }}</div>
+          <div class="modelo">Ext: {{ v.codigoExterno }}</div>
+          <div class="modelo">VIN: {{ v.vin }}</div>
+        </div>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="vehiculo">
       <th mat-header-cell *matHeaderCellDef>Vehículo</th>
       <td mat-cell *matCellDef="let v">
         <div class="vehiculo">
-          <div class="marca">{{ v.marca }}</div>
-          <div class="modelo">{{ v.modelo }}</div>
+          <div class="marca">{{ v.marca }} {{ v.modelo }}</div>
+          <div class="modelo">{{ v.modeloLegal }}</div>
+          <div class="modelo">Año {{ v.anio || '-' }} · {{ v.colorExterior }}</div>
         </div>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="anio">
-      <th mat-header-cell *matHeaderCellDef>Año</th>
-      <td mat-cell *matCellDef="let v">{{ v.anio || '-' }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="color">
-      <th mat-header-cell *matHeaderCellDef>Color</th>
-      <td mat-cell *matCellDef="let v">{{ v.color }}</td>
+    <ng-container matColumnDef="tipo">
+      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+      <td mat-cell *matCellDef="let v">
+        <div class="vehiculo">
+          <div>{{ v.tipoVehiculo }}</div>
+          <div class="modelo">{{ v.tipoTransmision || '-' }}</div>
+        </div>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="precio">
       <th mat-header-cell *matHeaderCellDef>Precio</th>
-      <td mat-cell *matCellDef="let v">S/ {{ v.precioLista | number:'1.2-2' }}</td>
+      <td mat-cell *matCellDef="let v">
+        <div class="vehiculo">
+          <div class="marca">US$ {{ v.precioVenta | number:'1.2-2' }}</div>
+          <div class="modelo">Compra: US$ {{ v.precioCompra | number:'1.2-2' }}</div>
+        </div>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="estado">
       <th mat-header-cell *matHeaderCellDef>Estado</th>
       <td mat-cell *matCellDef="let v">
-        <mat-chip class="estado" [class.inactivo]="!v.activo">{{ v.activo ? 'ACTIVO' : 'INACTIVO' }}</mat-chip>
+        <mat-chip class="estado" [class.disponible]="v.estadoVehiculo.toUpperCase()==='DISPONIBLE'" [class.reservado]="v.estadoVehiculo.toUpperCase()==='RESERVADO'" [class.vendido]="v.estadoVehiculo.toUpperCase()==='VENDIDO' || !v.activo">
+          {{ v.estadoVehiculo || (v.activo ? 'ACTIVO' : 'INACTIVO') }}
+        </mat-chip>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ubicacion">
+      <th mat-header-cell *matHeaderCellDef>Ubicación</th>
+      <td mat-cell *matCellDef="let v">
+        <div class="vehiculo">
+          <div>{{ v.ubicacion }}</div>
+          <div class="modelo">{{ v.fechaIngreso ? (v.fechaIngreso | date:'dd/MM/yyyy') : '-' }}</div>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="stock">
+      <th mat-header-cell *matHeaderCellDef>Stock</th>
+      <td mat-cell *matCellDef="let v">
+        <div class="vehiculo">
+          <div class="marca">{{ v.stockActual }}</div>
+          <div class="modelo">{{ v.km0 ? 'KM 0' : 'Con uso' }}</div>
+        </div>
       </td>
     </ng-container>
 

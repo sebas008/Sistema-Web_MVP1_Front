@@ -27,6 +27,7 @@ table { width: 100%; }
 .vehiculo {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .marca { font-weight: 700; }
@@ -50,4 +51,77 @@ table { width: 100%; }
 .estado.vendido {
   background: #ffebee;
   color: #c62828;
+}
+
+.state,
+.empty,
+.error {
+  padding: 12px 4px;
+}
+
+:host ::ng-deep .vehiculo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+:host ::ng-deep .section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+:host ::ng-deep .grid {
+  display: grid;
+  gap: 12px;
+}
+
+:host ::ng-deep .grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+:host ::ng-deep .grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+:host ::ng-deep .span-2 {
+  grid-column: span 2;
+}
+
+:host ::ng-deep .toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+:host ::ng-deep .vehiculo-form mat-form-field {
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  :host ::ng-deep .grid-4,
+  :host ::ng-deep .grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .page-head {
+    flex-direction: column;
+  }
+
+  .actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  :host ::ng-deep .grid-4,
+  :host ::ng-deep .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  :host ::ng-deep .span-2 {
+    grid-column: span 1;
+  }
 }

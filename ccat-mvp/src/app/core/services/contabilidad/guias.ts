@@ -4,10 +4,10 @@ import { environment } from '../../../../environments/environment';
 
 export type GuiaResponse = {
   idGuia: number;
-  numero: string;     // GUIA-0001
-  fecha: string;      // ISO
+  numero: string;
+  fecha: string;
   tipo?: string | null;
-  estado: string;     // EMITIDA
+  estado: string;
   motivoTraslado?: string | null;
   puntoPartida?: string | null;
   puntoLlegada?: string | null;
@@ -17,7 +17,7 @@ export type GuiaResponse = {
 
 export type GuiaDetalleItem = {
   item?: number;
-  tipo?: string; // PRODUCTO / VEHICULO / SERVICIO
+  tipo?: string;
   idProducto?: number | null;
   idVehiculo?: number | null;
   descripcion: string;
@@ -26,7 +26,7 @@ export type GuiaDetalleItem = {
 
 export type GuiaEmitirRequest = {
   serie: string;
-  fechaEmision: string; // ISO date
+  fechaEmision: string;
   tipo: string;
   motivoTraslado?: string | null;
   puntoPartida?: string | null;
@@ -43,7 +43,7 @@ export class GuiasService {
   constructor(private http: HttpClient) {}
 
   listar(q?: string | null) {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_ts', Date.now().toString());
     if (q) params = params.set('q', q);
     return this.http.get<GuiaResponse[]>(this.baseUrl, { params });
   }

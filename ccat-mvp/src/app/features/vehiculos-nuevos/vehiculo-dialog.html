@@ -1,11 +1,27 @@
-<h2 mat-dialog-title>{{ data ? 'Editar vehículo' : 'Nuevo vehículo' }}</h2>
+<h2 mat-dialog-title>{{ data ? 'Modificar vehículo nuevo' : 'Ingreso de vehículo nuevo' }}</h2>
 
-<mat-dialog-content>
-  <form [formGroup]="form" class="form">
-    <div class="grid">
+<form [formGroup]="form" class="vehiculo-form" (ngSubmit)="guardar()">
+  <mat-dialog-content>
+    <div class="section-title">Datos principales</div>
+    <div class="grid grid-4">
       <mat-form-field appearance="outline">
-        <mat-label>VIN (código)</mat-label>
-        <input matInput formControlName="vin" placeholder="Opcional" />
+        <mat-label>Código vehículo</mat-label>
+        <input matInput formControlName="codigoVehiculo" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Código externo</mat-label>
+        <input matInput formControlName="codigoExterno" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>VIN / Frame</mat-label>
+        <input matInput formControlName="vin" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <input matInput formControlName="estadoVehiculo" />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -19,13 +35,46 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Año</mat-label>
+        <mat-label>Modelo legal</mat-label>
+        <input matInput formControlName="modeloLegal" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo vehículo</mat-label>
+        <input matInput formControlName="tipoVehiculo" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo transmisión</mat-label>
+        <input matInput formControlName="tipoTransmision" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Modelo técnico</mat-label>
+        <input matInput formControlName="modeloTecnico" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Año del vehículo</mat-label>
         <input matInput type="number" formControlName="anio" />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Color</mat-label>
-        <input matInput formControlName="color" />
+        <mat-label>Fecha de ingreso</mat-label>
+        <input matInput type="date" formControlName="fechaIngreso" />
+      </mat-form-field>
+    </div>
+
+    <div class="section-title">Precios y ubicación</div>
+    <div class="grid grid-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Precio compra (US$)</mat-label>
+        <input matInput type="number" formControlName="precioCompra" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Precio venta (US$)</mat-label>
+        <input matInput type="number" formControlName="precioVenta" />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -33,7 +82,25 @@
         <input matInput type="number" formControlName="precioLista" />
       </mat-form-field>
 
-      <mat-slide-toggle formControlName="activo">Activo</mat-slide-toggle>
+      <mat-form-field appearance="outline">
+        <mat-label>Bono (US$)</mat-label>
+        <input matInput type="number" formControlName="bonoUsd" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ubicación</mat-label>
+        <input matInput formControlName="ubicacion" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Sección asignada</mat-label>
+        <input matInput formControlName="seccionAsignada" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Código SAP</mat-label>
+        <input matInput formControlName="codigoSap" />
+      </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Usuario</mat-label>
@@ -41,14 +108,98 @@
       </mat-form-field>
     </div>
 
-    <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
-  </form>
-</mat-dialog-content>
+    <div class="section-title">Características técnicas</div>
+    <div class="grid grid-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Color exterior</mat-label>
+        <input matInput formControlName="colorExterior" />
+      </mat-form-field>
 
-<mat-dialog-actions align="end">
-  <button mat-stroked-button (click)="cerrar()" [disabled]="loading">Cancelar</button>
-  <button mat-raised-button color="primary" (click)="guardar()" [disabled]="loading">
-    <mat-progress-spinner *ngIf="loading" diameter="18" mode="indeterminate"></mat-progress-spinner>
-    <span *ngIf="!loading">Guardar</span>
-  </button>
-</mat-dialog-actions>
+      <mat-form-field appearance="outline">
+        <mat-label>Color interior</mat-label>
+        <input matInput formControlName="colorInterior" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>N.° asientos</mat-label>
+        <input matInput type="number" formControlName="numeroAsientos" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>N.° puertas</mat-label>
+        <input matInput type="number" formControlName="numeroPuertas" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>C.C.</mat-label>
+        <input matInput formControlName="cilindrajeCc" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>HP</mat-label>
+        <input matInput formControlName="potenciaHp" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo combustible</mat-label>
+        <input matInput formControlName="tipoCombustible" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>N.° motor</mat-label>
+        <input matInput formControlName="numeroMotor" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>N.° chasis</mat-label>
+        <input matInput formControlName="numeroChasis" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Peso bruto</mat-label>
+        <input matInput type="number" formControlName="pesoBruto" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Carga útil</mat-label>
+        <input matInput type="number" formControlName="cargaUtil" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo catalítico</mat-label>
+        <input matInput formControlName="tipoCatalitico" />
+      </mat-form-field>
+    </div>
+
+    <div class="section-title">Banderas y observación</div>
+    <div class="toggles">
+      <mat-slide-toggle formControlName="catalitico">Catalítico</mat-slide-toggle>
+      <mat-slide-toggle formControlName="pagado">Pagado</mat-slide-toggle>
+      <mat-slide-toggle formControlName="testDrive">Test drive</mat-slide-toggle>
+      <mat-slide-toggle formControlName="km0">KM 0</mat-slide-toggle>
+      <mat-slide-toggle formControlName="activo">Activo</mat-slide-toggle>
+    </div>
+
+    <div class="grid grid-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Unidad test drive</mat-label>
+        <input matInput formControlName="unidadTestDrive" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="span-2">
+        <mat-label>Observación</mat-label>
+        <textarea matInput rows="3" formControlName="observacion"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button type="button" mat-stroked-button (click)="cerrar()" [disabled]="loading">Cancelar</button>
+    <button type="submit" mat-raised-button color="primary" [disabled]="loading">
+      <mat-progress-spinner *ngIf="loading" diameter="18" mode="indeterminate"></mat-progress-spinner>
+      <span *ngIf="!loading">Guardar</span>
+    </button>
+  </mat-dialog-actions>
+</form>

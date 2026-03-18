@@ -48,6 +48,7 @@ export const routes: Routes = [
           import('./features/vehiculos-nuevos/vehiculos-nuevos')
             .then(m => m.VehiculosNuevosComponent)
       },
+      { path: 'vehiculos', redirectTo: 'vehiculos-nuevos', pathMatch: 'full' },
 
       {
         path: 'contabilidad',
@@ -86,6 +87,7 @@ export const routes: Routes = [
           import('./features/servicios-mecanicos/ordenes-servicio/ordenes-servicio')
             .then(m => m.OrdenesServicioComponent)
       },
+      { path: 'servicios', redirectTo: 'servicios-mecanicos', pathMatch: 'full' },
       // alias con tilde (usuarios suelen teclear/pegar la ruta con acento)
       { path: 'servicios-mecánicos', redirectTo: 'servicios-mecanicos', pathMatch: 'full' },
       {

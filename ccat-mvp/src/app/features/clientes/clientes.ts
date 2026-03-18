@@ -1,7 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ClientesService, ClienteResponse } from '../../core/services/clientes';
+import { ClientesService, ClienteResponse, ClienteCrearRequest, ClienteActualizarRequest } from '../../core/services/clientes';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +14,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Subject } from 'rxjs';
+import { filter, finalize, takeUntil, timeout } from 'rxjs/operators';
 
 @Component({
   standalone: true,
@@ -35,11 +38,13 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
   templateUrl: './clientes.html',
   styleUrls: ['./clientes.scss']
 })
-export class ClientesComponent implements OnInit {
+export class ClientesComponent implements OnInit, OnDestroy {
   private readonly svc = inject(ClientesService);
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
+  private readonly router = inject(Router);
+  private readonly destroy$ = new Subject<void>();
 
   loading = false;
 
@@ -52,28 +57,50 @@ export class ClientesComponent implements OnInit {
   displayedColumns = ['razonSocial', 'documento', 'contacto', 'activo', 'acciones'];
 
   ngOnInit(): void {
-    this.cargar();
+    this.cargar(true);
+
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event) => {
+        const url = event.urlAfterRedirects || event.url;
+        if (url.startsWith('/app/clientes')) {
+          this.cargar(true);
+        }
+      });
   }
 
-  cargar(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  cargar(force = false): void {
+    if (this.loading && !force) return;
+
     const { q, soloActivos } = this.filtroForm.value;
 
     this.loading = true;
-    this.svc.listar(q ?? null, soloActivos ?? null).subscribe({
-      next: (res) => {
-        this.data = res ?? [];
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.snack.open('Error cargando clientes', 'Cerrar', { duration: 2500 });
-      }
-    });
+    this.svc.listar(q ?? null, soloActivos ?? null)
+      .pipe(
+        timeout(8000),
+        finalize(() => { this.loading = false; })
+      )
+      .subscribe({
+        next: (res) => {
+          this.data = res ?? [];
+        },
+        error: () => {
+          this.snack.open('Error cargando clientes', 'Cerrar', { duration: 2500 });
+        }
+      });
   }
 
   limpiar(): void {
     this.filtroForm.reset({ q: '', soloActivos: true });
-    this.cargar();
+    this.cargar(true);
   }
 
   abrirCrear(): void {
@@ -83,7 +110,7 @@ export class ClientesComponent implements OnInit {
     });
 
     ref.afterClosed().subscribe((ok) => {
-      if (ok) this.cargar();
+      if (ok) this.cargar(true);
     });
   }
 
@@ -94,7 +121,7 @@ export class ClientesComponent implements OnInit {
     });
 
     ref.afterClosed().subscribe((ok) => {
-      if (ok) this.cargar();
+      if (ok) this.cargar(true);
     });
   }
 
@@ -218,27 +245,27 @@ export class ClienteDialogComponent {
   form = this.fb.group({
     tipoDocumento: [null as string | null],
     numeroDocumento: [''],
-    razonSocial: ['', [Validators.required]],
+    razonSocial: ['', Validators.required],
     direccion: [''],
     telefono: [''],
-    email: [''],
+    email: ['', Validators.email],
   });
 
   constructor(
-    private ref: MatDialogRef<ClienteDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    private ref: MatDialogRef<ClienteDialogComponent, boolean>,
+    @Inject(MAT_DIALOG_DATA) public data: { mode: 'create' | 'edit'; cliente?: ClienteResponse }
   ) {
     this.mode = data.mode;
-    if (this.mode === 'edit' && data.cliente) {
-      const c = data.cliente as ClienteResponse;
-      this.clienteId = c.idCliente;
+
+    if (data.cliente) {
+      this.clienteId = data.cliente.idCliente;
       this.form.patchValue({
-        tipoDocumento: c.tipoDocumento ?? null,
-        numeroDocumento: c.numeroDocumento ?? '',
-        razonSocial: c.razonSocial ?? '',
-        direccion: c.direccion ?? '',
-        telefono: c.telefono ?? '',
-        email: c.email ?? '',
+        tipoDocumento: data.cliente.tipoDocumento ?? null,
+        numeroDocumento: data.cliente.numeroDocumento ?? '',
+        razonSocial: data.cliente.razonSocial,
+        direccion: data.cliente.direccion ?? '',
+        telefono: data.cliente.telefono ?? '',
+        email: data.cliente.email ?? '',
       });
     }
   }
@@ -248,27 +275,30 @@ export class ClienteDialogComponent {
   }
 
   save(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
     this.loading = true;
-    const payload = {
-      ...this.form.value,
+    const raw = this.form.getRawValue();
+    const payload: ClienteCrearRequest | ClienteActualizarRequest = {
+      tipoDocumento: raw.tipoDocumento ?? null,
+      numeroDocumento: (raw.numeroDocumento ?? '').trim() || null,
+      razonSocial: (raw.razonSocial ?? '').trim(),
+      direccion: (raw.direccion ?? '').trim() || null,
+      telefono: (raw.telefono ?? '').trim() || null,
+      email: (raw.email ?? '').trim() || null,
       usuario: 'admin'
     };
 
-    const req$ = this.mode === 'create'
-      ? this.svc.crear(payload as any)
-      : this.svc.actualizar(this.clienteId!, payload as any);
+    const obs = this.mode === 'create'
+      ? this.svc.crear(payload)
+      : this.svc.actualizar(this.clienteId!, payload);
 
-    req$.subscribe({
-      next: () => {
-        this.loading = false;
-        this.close(true);
-      },
-      error: () => {
-        this.loading = false;
-        this.close(false);
-      }
+    obs.subscribe({
+      next: () => this.ref.close(true),
+      error: () => { this.loading = false; }
     });
   }
 }

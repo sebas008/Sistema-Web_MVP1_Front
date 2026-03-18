@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { finalize, timeout } from 'rxjs/operators';
 
@@ -12,6 +13,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
 
 import { FacturacionService, FacturaResponse } from '../../../core/services/contabilidad/facturacion';
 import { FacturaEmitirDialogComponent } from './factura-emitir-dialog';
@@ -36,10 +40,12 @@ import { FacturaDetalleDialogComponent } from './factura-detalle-dialog';
   templateUrl: './facturacion.html',
   styleUrls: ['./facturacion.scss']
 })
-export class FacturacionComponent implements OnInit {
+export class FacturacionComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private api = inject(FacturacionService);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private destroy$ = new Subject<void>();
 
   loading = false;
   errorMsg = '';
@@ -48,11 +54,28 @@ export class FacturacionComponent implements OnInit {
   form = this.fb.group({ q: [''] });
 
   ngOnInit(): void {
-    this.cargar();
+    this.cargar(true);
+
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event) => {
+        const url = event.urlAfterRedirects || event.url;
+        if (url.startsWith('/app/contabilidad/facturacion')) {
+          this.cargar(true);
+        }
+      });
   }
 
-  cargar(): void {
-    if (this.loading) return;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  cargar(force = false): void {
+    if (this.loading && !force) return;
 
     this.loading = true;
     this.errorMsg = '';
@@ -77,13 +100,13 @@ export class FacturacionComponent implements OnInit {
 
   limpiar(): void {
     this.form.patchValue({ q: '' });
-    this.cargar();
+    this.cargar(true);
   }
 
   emitir(): void {
     const ref = this.dialog.open(FacturaEmitirDialogComponent, { width: '920px' });
     ref.afterClosed().subscribe((ok: boolean) => {
-      if (ok) this.cargar();
+      if (ok) this.cargar(true);
     });
   }
 
@@ -93,7 +116,7 @@ export class FacturacionComponent implements OnInit {
     if (!confirm('¿Anular la factura?')) return;
 
     this.api.anular(row.idFactura).subscribe({
-      next: () => this.cargar(),
+      next: () => this.cargar(true),
       error: (err: any) => {
         this.errorMsg = err?.error?.detail ?? err?.error?.message ?? 'No se pudo anular.';
       }

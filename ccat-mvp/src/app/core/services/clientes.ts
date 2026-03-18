@@ -39,7 +39,7 @@ export class ClientesService {
   constructor(private http: HttpClient) {}
 
   listar(q?: string | null, soloActivos?: boolean | null): Observable<ClienteResponse[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_ts', Date.now().toString());
     if (q) params = params.set('q', q);
     if (soloActivos !== null && soloActivos !== undefined) params = params.set('soloActivos', soloActivos);
     return this.http.get<ClienteResponse[]>(this.baseUrl, { params });

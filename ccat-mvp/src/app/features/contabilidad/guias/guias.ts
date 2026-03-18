@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { finalize, timeout } from 'rxjs/operators';
 
@@ -14,6 +15,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
 
 import { GuiasService, GuiaResponse } from '../../../core/services/contabilidad/guias';
 import { GuiaEmitirDialogComponent } from './guia-emitir-dialog';
@@ -40,11 +43,13 @@ import { GuiaDetalleDialogComponent } from './guia-detalle-dialog';
   templateUrl: './guias.html',
   styleUrls: ['./guias.scss'],
 })
-export class GuiasComponent implements OnInit {
+export class GuiasComponent implements OnInit, OnDestroy {
   private hasRetried = false;
   private fb = inject(FormBuilder);
   private api = inject(GuiasService);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private destroy$ = new Subject<void>();
 
   loading = false;
   errorMsg = '';
@@ -56,9 +61,28 @@ export class GuiasComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => this.cargar(true), 0);
+
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event) => {
+        const url = event.urlAfterRedirects || event.url;
+        if (url.startsWith('/app/contabilidad/guias')) {
+          this.cargar(true);
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   cargar(esInicial = false) {
+    if (this.loading && !esInicial) return;
+
     this.loading = true;
     this.errorMsg = '';
 
@@ -86,7 +110,7 @@ export class GuiasComponent implements OnInit {
 
   limpiar() {
     this.form.patchValue({ q: '' });
-    this.cargar(false);
+    this.cargar(true);
   }
 
   emitir() {
@@ -97,7 +121,7 @@ export class GuiasComponent implements OnInit {
     });
 
     ref.afterClosed().subscribe((ok: boolean) => {
-      if (ok) this.cargar(false);
+      if (ok) this.cargar(true);
     });
   }
 
@@ -118,7 +142,7 @@ export class GuiasComponent implements OnInit {
     if (!ok) return;
 
     this.api.anular(row.idGuia).subscribe({
-      next: () => this.cargar(false),
+      next: () => this.cargar(true),
       error: (err: any) => {
         this.errorMsg = err?.error?.detail ?? err?.error?.message ?? 'No se pudo anular la guía.';
       }

@@ -11,20 +11,55 @@ import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { VehiculosNuevosService, VehiculoNuevoResponse } from '../../core/services/vehiculos-nuevos';
 import { VehiculoDialogComponent } from './vehiculo-dialog';
 
 type VehiculoRow = {
   idVehiculo: number;
+  codigoVehiculo: string;
+  codigoExterno: string;
   vin: string;
   marca: string;
   modelo: string;
+  modeloLegal: string;
+  tipoVehiculo: string;
   anio: number;
-  color: string;
+  colorExterior: string;
+  colorInterior: string;
+  precioCompra: number;
+  precioVenta: number;
   precioLista: number;
+  estadoVehiculo: string;
+  ubicacion: string;
+  fechaIngreso: string;
   activo: boolean;
   stockActual: number;
+  observacion: string;
+
+  version?: string;
+  color?: string;
+  tipoTransmision?: string;
+  numeroMotor?: string;
+  numeroChasis?: string;
+  tipoCombustible?: string;
+  modeloTecnico?: string;
+  seccionAsignada?: string;
+  codigoSap?: string;
+  bonoUsd?: number;
+  pagado?: boolean;
+  testDrive?: boolean;
+  unidadTestDrive?: string;
+  km0?: boolean;
+  catalitico?: boolean;
+  tipoCatalitico?: string;
+  numeroAsientos?: number;
+  numeroPuertas?: number;
+  cilindrajeCc?: string;
+  potenciaHp?: string;
+  pesoBruto?: number;
+  cargaUtil?: number;
 };
 
 @Component({
@@ -42,6 +77,7 @@ type VehiculoRow = {
     MatChipsModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatTooltipModule,
   ],
   templateUrl: './vehiculos-nuevos.html',
   styleUrls: ['./vehiculos-nuevos.scss'],
@@ -50,8 +86,7 @@ export class VehiculosNuevosComponent {
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
 
-  // Stock de vehículos nuevos no se gestiona en el MVP (evitamos confusión en demo)
-  displayedColumns = ['vin', 'vehiculo', 'anio', 'color', 'precio', 'estado', 'acciones'];
+  displayedColumns = ['codigo', 'vehiculo', 'tipo', 'precio', 'estado', 'ubicacion', 'stock', 'acciones'];
 
   q = '';
   dataSource: VehiculoRow[] = [];
@@ -81,22 +116,60 @@ export class VehiculosNuevosComponent {
     });
   }
 
-  private mapRow = (r: VehiculoNuevoResponse): VehiculoRow => {
-    return {
-      idVehiculo: Number(r.idVehiculo ?? 0),
-      vin: r.vin ?? '-',
-      marca: r.marca ?? '',
-      modelo: r.modelo ?? '',
-      anio: Number(r.anio ?? 0),
-      color: r.color ?? '-',
-      precioLista: Number(r.precioLista ?? 0),
-      activo: !!r.activo,
-      stockActual: Number(r.stockActual ?? 0),
-    };
-  };
+  private mapRow = (r: VehiculoNuevoResponse): VehiculoRow => ({
+    idVehiculo: Number(r.idVehiculo ?? 0),
+    codigoVehiculo: r.codigoVehiculo ?? '-',
+    codigoExterno: r.codigoExterno ?? '-',
+    vin: r.vin ?? '-',
+    marca: r.marca ?? '',
+    modelo: r.modelo ?? '',
+    modeloLegal: r.modeloLegal ?? '-',
+    tipoVehiculo: r.tipoVehiculo ?? '-',
+    anio: Number(r.anio ?? 0),
+    colorExterior: r.colorExterior ?? r.color ?? '-',
+    colorInterior: r.colorInterior ?? '-',
+    precioCompra: Number(r.precioCompra ?? 0),
+    precioVenta: Number(r.precioVenta ?? r.precioLista ?? 0),
+    precioLista: Number(r.precioLista ?? 0),
+    estadoVehiculo: r.estadoVehiculo ?? (r.activo ? 'DISPONIBLE' : 'INACTIVO'),
+    ubicacion: r.ubicacion ?? '-',
+    fechaIngreso: r.fechaIngreso ?? '',
+    activo: !!r.activo,
+    stockActual: Number(r.stockActual ?? 0),
+    observacion: r.observacion ?? '',
 
-  nuevoVehiculo() {
-    const ref = this.dialog.open(VehiculoDialogComponent, { width: '760px', data: null });
+    version: r.version ?? undefined,
+    color: r.color ?? undefined,
+    tipoTransmision: r.tipoTransmision ?? undefined,
+    numeroMotor: r.numeroMotor ?? undefined,
+    numeroChasis: r.numeroChasis ?? undefined,
+    tipoCombustible: r.tipoCombustible ?? undefined,
+    modeloTecnico: r.modeloTecnico ?? undefined,
+    seccionAsignada: r.seccionAsignada ?? undefined,
+    codigoSap: r.codigoSap ?? undefined,
+    bonoUsd: r.bonoUsd ?? undefined,
+    pagado: r.pagado ?? undefined,
+    testDrive: r.testDrive ?? undefined,
+    unidadTestDrive: r.unidadTestDrive ?? undefined,
+    km0: r.km0 ?? undefined,
+    catalitico: r.catalitico ?? undefined,
+    tipoCatalitico: r.tipoCatalitico ?? undefined,
+    numeroAsientos: r.numeroAsientos ?? undefined,
+    numeroPuertas: r.numeroPuertas ?? undefined,
+    cilindrajeCc: r.cilindrajeCc ?? undefined,
+    potenciaHp: r.potenciaHp ?? undefined,
+    pesoBruto: r.pesoBruto ?? undefined,
+    cargaUtil: r.cargaUtil ?? undefined,
+  });
+
+  nuevoVehiculo(): void {
+    const ref = this.dialog.open(VehiculoDialogComponent, {
+      width: '1200px',
+      maxWidth: '96vw',
+      maxHeight: '94vh',
+      data: null,
+    });
+
     ref.afterClosed().subscribe((ok: boolean) => {
       if (ok) {
         this.snack.open('Vehículo guardado correctamente', 'OK', { duration: 1800 });
@@ -105,8 +178,14 @@ export class VehiculosNuevosComponent {
     });
   }
 
-  editar(v: VehiculoRow) {
-    const ref = this.dialog.open(VehiculoDialogComponent, { width: '760px', data: v });
+  editar(v: VehiculoRow): void {
+    const ref = this.dialog.open(VehiculoDialogComponent, {
+      width: '1200px',
+      maxWidth: '96vw',
+      maxHeight: '94vh',
+      data: v,
+    });
+
     ref.afterClosed().subscribe((ok: boolean) => {
       if (ok) {
         this.snack.open('Cambios guardados', 'OK', { duration: 1800 });

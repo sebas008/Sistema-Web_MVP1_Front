@@ -30,7 +30,7 @@ export class InventarioRepuestosService {
   constructor(private http: HttpClient) {}
 
   listarStock(q?: string | null): Observable<StockProductoResponse[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_ts', Date.now().toString());
     if (q) params = params.set('q', q);
     return this.http.get<StockProductoResponse[]>(`${this.baseUrl}/stock`, { params });
   }
