@@ -1,101 +1,113 @@
-<div class="page-head">
+<section class="page-header">
   <div>
     <h1>Contabilidad · Facturación</h1>
     <p>Emisión y consulta de facturas</p>
   </div>
 
-  <div class="actions">
-    <button mat-raised-button color="primary" class="btn-primary" (click)="emitir()" [disabled]="loading">
+  <div class="header-actions">
+    <button mat-stroked-button type="button" (click)="cargar(true)" [disabled]="loading">
+      <mat-icon>refresh</mat-icon>
+      Actualizar
+    </button>
+
+    <button mat-raised-button color="primary" type="button" (click)="emitir()">
       <mat-icon>add</mat-icon>
       Emitir factura
     </button>
   </div>
-</div>
+</section>
 
-<div class="kpis">
-  <mat-card class="kpi">
-    <div class="kpi-title">Emitidas</div>
+<section class="kpi-grid">
+  <mat-card class="kpi-card">
+    <div class="kpi-label">Emitidas</div>
     <div class="kpi-value">{{ totalEmitidas }}</div>
   </mat-card>
-  <mat-card class="kpi">
-    <div class="kpi-title">Anuladas</div>
+
+  <mat-card class="kpi-card">
+    <div class="kpi-label">Anuladas</div>
     <div class="kpi-value">{{ totalAnuladas }}</div>
   </mat-card>
-  <mat-card class="kpi">
-    <div class="kpi-title">Total (lista)</div>
+
+  <mat-card class="kpi-card">
+    <div class="kpi-label">Total facturado</div>
     <div class="kpi-value">S/ {{ sumaTotal | number:'1.2-2' }}</div>
   </mat-card>
-</div>
+</section>
 
-<mat-card class="card">
-  <div class="toolbar" [formGroup]="form">
+<mat-card class="content-card">
+  <form class="toolbar" [formGroup]="form" (ngSubmit)="cargar(true)">
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Buscar</mat-label>
-      <input matInput placeholder="N° factura, cliente..." formControlName="q" (keyup.enter)="cargar()" />
-      <button mat-icon-button matSuffix type="button" (click)="cargar()">
+      <input matInput formControlName="q" placeholder="N°, cliente o estado" />
+      <button mat-icon-button matSuffix type="submit" aria-label="Buscar">
         <mat-icon>search</mat-icon>
       </button>
     </mat-form-field>
 
     <div class="toolbar-actions">
-      <button mat-stroked-button type="button" class="btn-outline btn-small" (click)="limpiar()" [disabled]="loading">
+      <button mat-stroked-button type="button" (click)="limpiar()" [disabled]="loading">
         Limpiar
       </button>
-      <button mat-raised-button color="primary" type="button" class="btn-primary btn-small" (click)="cargar()" [disabled]="loading">
-        <mat-icon>refresh</mat-icon>
-        Actualizar
-      </button>
     </div>
-  </div>
+  </form>
 
-  <div class="state" *ngIf="loading">
-    <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
-    <span>Cargando...</span>
-  </div>
-
-  <div class="error" *ngIf="!loading && errorMsg">
+  <div class="error-box" *ngIf="errorMsg">
     {{ errorMsg }}
   </div>
 
-  <div class="table-wrap" *ngIf="!loading && !errorMsg && dataSource.length > 0">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z0 table">
+  <div class="table-wrap">
+    <table mat-table [dataSource]="dataSource" class="app-table">
       <ng-container matColumnDef="numero">
         <th mat-header-cell *matHeaderCellDef>N°</th>
-        <td mat-cell *matCellDef="let f"><b>{{ f.numero }}</b></td>
+        <td mat-cell *matCellDef="let row">
+          <div class="strong">{{ row.numero }}</div>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="cliente">
         <th mat-header-cell *matHeaderCellDef>Cliente</th>
-        <td mat-cell *matCellDef="let f">{{ f.cliente || '-' }}</td>
+        <td mat-cell *matCellDef="let row">
+          <div>{{ row.cliente || '-' }}</div>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="fecha">
         <th mat-header-cell *matHeaderCellDef>Fecha</th>
-        <td mat-cell *matCellDef="let f">{{ f.fecha | date:'yyyy-MM-dd' }}</td>
+        <td mat-cell *matCellDef="let row">
+          {{ row.fecha | date:'yyyy-MM-dd' }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="total">
         <th mat-header-cell *matHeaderCellDef>Total</th>
-        <td mat-cell *matCellDef="let f">S/ {{ f.total | number:'1.2-2' }}</td>
+        <td mat-cell *matCellDef="let row">
+          S/ {{ row.total | number:'1.2-2' }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="estado">
         <th mat-header-cell *matHeaderCellDef>Estado</th>
-        <td mat-cell *matCellDef="let f">
-          <mat-chip class="chip" [class.bad]="(f.estado||'').toUpperCase()==='ANULADA'">
-            {{ f.estado }}
-          </mat-chip>
+        <td mat-cell *matCellDef="let row">
+          <span class="status-chip" [ngClass]="statusClass(row.estado || '')">
+            {{ row.estado || '-' }}
+          </span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="acciones">
         <th mat-header-cell *matHeaderCellDef>Acciones</th>
-        <td mat-cell *matCellDef="let f" class="act-cell">
-          <div class="act-wrap">
-            <button mat-icon-button type="button" class="act-btn" (click)="ver(f)">
+        <td mat-cell *matCellDef="let row">
+          <div class="action-buttons">
+            <button mat-icon-button type="button" (click)="ver(row)" aria-label="Ver detalle">
               <mat-icon>visibility</mat-icon>
             </button>
-            <button mat-icon-button type="button" class="act-btn act-btn--danger" [disabled]="(f.estado||'').toUpperCase()==='ANULADA'" (click)="anular(f)">
+
+            <button
+              mat-icon-button
+              type="button"
+              (click)="anular(row)"
+              aria-label="Anular"
+              [disabled]="(row.estado || '').toUpperCase() === 'ANULADA'">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -105,9 +117,9 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-  </div>
 
-  <div class="empty" *ngIf="!loading && !errorMsg && dataSource.length === 0">
-    No hay facturas para mostrar.
+    <div class="empty-state" *ngIf="!loading && dataSource.length === 0">
+      No hay facturas para mostrar.
+    </div>
   </div>
 </mat-card>

@@ -140,6 +140,15 @@ export class FacturacionComponent implements OnInit, OnDestroy {
   }
 
   get sumaTotal(): number {
-    return this.dataSource.reduce((acc, x) => acc + (x.total || 0), 0);
+    return this.dataSource.reduce((acc, x) => acc + Number(x.total || 0), 0);
+  }
+
+  statusClass(estado: string): 'ok' | 'bad' | 'mid' | 'draft' {
+    const e = (estado || '').toUpperCase();
+
+    if (e === 'EMITIDA' || e === 'REGISTRADA' || e === 'ACTIVO') return 'ok';
+    if (e === 'ANULADA' || e === 'INACTIVO' || e === 'RECHAZADA') return 'bad';
+    if (e === 'PENDIENTE') return 'mid';
+    return 'draft';
   }
 }

@@ -14,6 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ComprasService, CompraRegistrarRequest } from '../../../core/services/contabilidad/compras';
 import { ProveedoresService, ProveedorResponse } from '../../../core/services/contabilidad/proveedores';
 import { InventarioRepuestosService, StockProductoResponse } from '../../../core/services/inventario-repuestos';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   standalone: true,
@@ -38,6 +39,7 @@ export class CompraRegistrarDialogComponent {
   private compras = inject(ComprasService);
   private proveedoresApi = inject(ProveedoresService);
   private inventario = inject(InventarioRepuestosService);
+  private auth = inject(AuthService);
 
   loading = false;
   errorMsg = '';
@@ -51,7 +53,7 @@ export class CompraRegistrarDialogComponent {
     fechaEmision: [new Date().toISOString().slice(0, 10), [Validators.required]],
     moneda: ['PEN', [Validators.required]],
     afectaStock: [true],
-    usuario: ['admin', [Validators.required]],
+    usuario: [this.auth.getUsuario() ?? 'admin', [Validators.required]],
     detalle: this.fb.array([]),
   });
 

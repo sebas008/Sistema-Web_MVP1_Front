@@ -24,10 +24,10 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrls: ['./login.scss']
 })
 export class LoginComponent implements OnInit {
-
   hidePassword = true;
-  form; // ✅ se asigna en constructor
+  form;
   errorMsg = '';
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -42,19 +42,24 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.auth.isLoggedIn()) {
-      this.router.navigate(["/app/dashboard"]);
+      this.router.navigateByUrl(this.auth.getHomeRoute());
     }
   }
 
-  login() {
-    if (this.form.invalid) return;
+  login(): void {
+    if (this.form.invalid || this.loading) return;
 
     this.errorMsg = '';
+    this.loading = true;
 
     const { username, password } = this.form.value as { username: string; password: string };
     this.auth.login({ username, password }).subscribe({
-      next: () => this.router.navigate(['/app/dashboard']),
+      next: () => {
+        this.loading = false;
+        this.router.navigateByUrl(this.auth.getHomeRoute());
+      },
       error: (err) => {
+        this.loading = false;
         console.error('Login error:', err);
         this.errorMsg = err?.error?.message ?? 'Credenciales inválidas';
       }

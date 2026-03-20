@@ -1,14 +1,26 @@
 .vehiculo-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  min-width: min(1120px, 100%);
+  gap: 16px;
+  min-width: min(1180px, 100%);
+}
+
+.dialog-content {
+  padding-top: 8px;
+}
+
+.section-card {
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 18px;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,248,248,.9));
+  box-shadow: 0 10px 26px rgba(0,0,0,.04);
 }
 
 .section-title {
-  font-size: 16px;
-  font-weight: 700;
-  margin-top: 4px;
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0 0 14px;
 }
 
 .grid {
@@ -33,6 +45,7 @@
   flex-wrap: wrap;
   gap: 16px;
   align-items: center;
+  margin-bottom: 6px;
 }
 
 mat-form-field {
@@ -41,7 +54,11 @@ mat-form-field {
 
 .error {
   color: #b3261e;
-  font-weight: 600;
+  font-weight: 700;
+}
+
+mat-dialog-actions {
+  padding-top: 8px;
 }
 
 @media (max-width: 1100px) {

@@ -83,7 +83,7 @@
       <ng-container matColumnDef="estado">
         <th mat-header-cell *matHeaderCellDef>Estado</th>
         <td mat-cell *matCellDef="let c">
-          <mat-chip class="chip" [class.bad]="(c.estado||'').toUpperCase()==='ANULADA'">
+          <mat-chip class="chip" [ngClass]="statusClass(c.estado)">
             {{ c.estado }}
           </mat-chip>
         </td>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ClientesService, ClienteResponse, ClienteCrearRequest, ClienteActualizarRequest } from '../../core/services/clientes';
+import { AuthService } from '../../core/services/auth';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -44,6 +45,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   private readonly destroy$ = new Subject<void>();
 
   loading = false;
@@ -237,6 +239,7 @@ import { MatSelectModule } from '@angular/material/select';
 export class ClienteDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly svc = inject(ClientesService);
+  private readonly auth = inject(AuthService);
 
   loading = false;
   mode: 'create' | 'edit';
@@ -289,7 +292,7 @@ export class ClienteDialogComponent {
       direccion: (raw.direccion ?? '').trim() || null,
       telefono: (raw.telefono ?? '').trim() || null,
       email: (raw.email ?? '').trim() || null,
-      usuario: 'admin'
+      usuario: this.auth.getUsuario() ?? 'admin'
     };
 
     const obs = this.mode === 'create'

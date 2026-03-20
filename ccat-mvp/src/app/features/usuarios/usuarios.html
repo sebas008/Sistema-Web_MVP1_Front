@@ -5,7 +5,7 @@
   </div>
 
   <div class="actions">
-    <button mat-stroked-button (click)="cargar()" [disabled]="loading">
+    <button mat-stroked-button (click)="cargar(true)" [disabled]="loading">
       <mat-icon>refresh</mat-icon>
       Refrescar
     </button>
@@ -17,7 +17,6 @@
 </div>
 
 <mat-card class="card">
-
   <div class="tools">
     <mat-form-field appearance="outline" class="search">
       <mat-label>Buscar</mat-label>
@@ -30,9 +29,9 @@
     </div>
   </div>
 
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z0 table">
+  <div class="error-box" *ngIf="errorMsg">{{ errorMsg }}</div>
 
-    <!-- Usuario -->
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z0 table">
     <ng-container matColumnDef="usuario">
       <th mat-header-cell *matHeaderCellDef>Usuario</th>
       <td mat-cell *matCellDef="let u">
@@ -46,7 +45,6 @@
       </td>
     </ng-container>
 
-    <!-- Nombres -->
     <ng-container matColumnDef="nombres">
       <th mat-header-cell *matHeaderCellDef>Nombre</th>
       <td mat-cell *matCellDef="let u">
@@ -54,7 +52,6 @@
       </td>
     </ng-container>
 
-    <!-- Email -->
     <ng-container matColumnDef="email">
       <th mat-header-cell *matHeaderCellDef>Email</th>
       <td mat-cell *matCellDef="let u">
@@ -62,19 +59,20 @@
       </td>
     </ng-container>
 
-    <!-- Roles -->
     <ng-container matColumnDef="roles">
       <th mat-header-cell *matHeaderCellDef>Roles</th>
       <td mat-cell *matCellDef="let u">
-        <mat-chip-set>
-          <mat-chip *ngFor="let r of u.roles" class="chip" [class.admin]="r === 'ADMIN'">
+        <div class="roles-wrap" *ngIf="u.roles.length; else noRoles">
+          <span *ngFor="let r of u.roles; trackBy: trackRole" class="role-pill" [ngClass]="roleClass(r)">
             {{ r }}
-          </mat-chip>
-        </mat-chip-set>
+          </span>
+        </div>
+        <ng-template #noRoles>
+          <span class="role-empty">Sin rol asignado</span>
+        </ng-template>
       </td>
     </ng-container>
 
-    <!-- Estado -->
     <ng-container matColumnDef="estado">
       <th mat-header-cell *matHeaderCellDef>Estado</th>
       <td mat-cell *matCellDef="let u">
@@ -84,7 +82,6 @@
       </td>
     </ng-container>
 
-    <!-- Acciones -->
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let u" class="actions-col">
@@ -96,17 +93,17 @@
           <mat-icon>security</mat-icon>
         </button>
 
-
-        <button mat-icon-button (click)="toggleActivo(u)" matTooltip="Activar / Desactivar">
+        <button
+          mat-icon-button
+          (click)="toggleActivo(u)"
+          matTooltip="Activar / Desactivar"
+          [disabled]="pendingToggleId === u.idUsuario">
           <mat-icon>{{ u.activo ? 'toggle_on' : 'toggle_off' }}</mat-icon>
         </button>
-
       </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
   </table>
-
 </mat-card>

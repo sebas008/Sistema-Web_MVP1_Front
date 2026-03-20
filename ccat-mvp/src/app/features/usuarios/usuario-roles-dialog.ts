@@ -36,6 +36,7 @@ type UsuarioRow = {
     MatProgressSpinnerModule,
   ],
   templateUrl: './usuario-roles-dialog.html',
+  styleUrls: ['./usuario-roles-dialog.scss'],
 })
 export class UsuarioRolesDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -57,16 +58,14 @@ export class UsuarioRolesDialogComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // 1) Cargar catálogo de roles -> habilita UI (NO depender de obtener usuario)
     this.rolesApi
       .listar(true)
       .pipe(
         catchError((err) => {
-          this.errorMsg = err?.error?.message ?? 'No se pudo cargar roles.';
+          this.errorMsg = err?.error?.detail ?? err?.error?.message ?? 'No se pudo cargar roles.';
           return of([] as RolResponse[]);
         }),
         finalize(() => {
-          // Evita NG0100 (cambio de binding en mismo ciclo)
           setTimeout(() => {
             this.loading = false;
             this.cdr.markForCheck();
@@ -76,7 +75,6 @@ export class UsuarioRolesDialogComponent implements OnInit {
       .subscribe((r) => {
         this.roles = r ?? [];
 
-        // 2) Cargar roles actuales del usuario en segundo plano (no bloquear UI)
         this.usuariosApi.obtener(this.data.idUsuario).subscribe({
           next: (u: any) => {
             const rolesAny = u?.roles;
@@ -89,17 +87,18 @@ export class UsuarioRolesDialogComponent implements OnInit {
             this.cdr.markForCheck();
           },
           error: () => {
-            // si falla, igual se puede asignar manualmente
+            // permitir asignación manual igual
           },
         });
       });
   }
 
-  guardar() {
+  guardar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
+
     const usuario = this.auth.getUsuario() ?? 'admin';
     const ids = (this.form.getRawValue().roles ?? []) as number[];
     const csv = ids.join(',');
@@ -114,12 +113,12 @@ export class UsuarioRolesDialogComponent implements OnInit {
       },
       error: (err: any) => {
         this.saving = false;
-        this.errorMsg = err?.error?.message ?? 'No se pudo asignar roles.';
+        this.errorMsg = err?.error?.detail ?? err?.error?.message ?? 'No se pudo asignar roles.';
       },
     });
   }
 
-  cerrar() {
+  cerrar(): void {
     this.dialogRef.close(false);
   }
 }

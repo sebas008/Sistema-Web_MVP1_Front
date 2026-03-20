@@ -15,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GuiasService, GuiaEmitirRequest } from '../../../core/services/contabilidad/guias';
 import { InventarioRepuestosService, StockProductoResponse } from '../../../core/services/inventario-repuestos';
 import { VehiculosNuevosService, VehiculoNuevoResponse } from '../../../core/services/vehiculos-nuevos';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   standalone: true,
@@ -41,6 +42,7 @@ export class GuiaEmitirDialogComponent {
   private api = inject(GuiasService);
   private inventario = inject(InventarioRepuestosService);
   private vehiculosApi = inject(VehiculosNuevosService);
+  private auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
   loading = false;
@@ -66,7 +68,7 @@ export class GuiaEmitirDialogComponent {
     puntoPartida: [''],
     puntoLlegada: [''],
     afectaStock: [true, [Validators.required]],
-    usuario: ['admin', [Validators.required]],
+    usuario: [this.auth.getUsuario() ?? 'admin', [Validators.required]],
     detalle: this.fb.array([] as any[]),
   });
 

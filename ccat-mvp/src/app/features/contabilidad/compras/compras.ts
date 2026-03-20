@@ -158,4 +158,12 @@ export class ComprasComponent implements OnInit, OnDestroy {
   get sumaTotal(): number {
     return this.dataSource.reduce((acc, x) => acc + Number(x.total || 0), 0);
   }
+
+  statusClass(estado: string): 'ok' | 'bad' | 'mid' | 'draft' {
+    const e = (estado || '').toUpperCase();
+    if (e === 'ANULADA') return 'bad';
+    if (e === 'PENDIENTE') return 'mid';
+    if (e === 'BORRADOR') return 'draft';
+    return 'ok';
+  }
 }

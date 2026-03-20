@@ -12,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { FormsModule } from '@angular/forms';
 
@@ -47,6 +48,7 @@ type UsuarioRow = {
     MatChipsModule,
     MatMenuModule,
     MatSlideToggleModule,
+    MatTooltipModule,
     FormsModule,
     MatDialogModule
   ],
@@ -57,6 +59,8 @@ export class UsuariosComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   loading = false;
+  errorMsg = '';
+  pendingToggleId: number | null = null;
 
   displayedColumns = ['usuario', 'nombres', 'email', 'roles', 'estado', 'acciones'];
 
@@ -65,7 +69,12 @@ export class UsuariosComponent implements OnInit, OnDestroy {
 
   private data: UsuarioRow[] = [];
 
-  constructor(private usuarios: UsuariosService, private auth: AuthService, private dialog: MatDialog, private router: Router) {}
+  constructor(
+    private usuarios: UsuariosService,
+    private auth: AuthService,
+    private dialog: MatDialog,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     setTimeout(() => this.cargar(true), 0);
@@ -92,6 +101,8 @@ export class UsuariosComponent implements OnInit, OnDestroy {
     if (this.loading && !force) return;
 
     this.loading = true;
+    this.errorMsg = '';
+
     this.usuarios.listar(null, this.soloActivos ? true : null)
       .pipe(timeout(8000))
       .subscribe({
@@ -102,6 +113,7 @@ export class UsuariosComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Usuarios error:', err);
+          this.errorMsg = err?.error?.detail ?? err?.error?.message ?? 'No se pudo cargar usuarios.';
           this.data = [];
           this.loading = false;
         }
@@ -118,14 +130,24 @@ export class UsuariosComponent implements OnInit, OnDestroy {
       this.data.map((u) =>
         this.usuarios.obtener(u.idUsuario).pipe(
           timeout(8000),
-          map((d) => ({ idUsuario: u.idUsuario, roles: (d.roles ?? []).map(r => r.nombre) })),
-          catchError(() => of({ idUsuario: u.idUsuario, roles: [] as string[] }))
+          map((d) => ({
+            idUsuario: u.idUsuario,
+            roles: Array.isArray(d?.roles) && d.roles.length
+              ? d.roles.map(r => r.nombre)
+              : this.normalizeRoles((d as any)?.rolNombre ?? null)
+          })),
+          catchError(() => of({ idUsuario: u.idUsuario, roles: u.roles ?? [] as string[] }))
         )
       )
-    ).subscribe((items) => {
-      const mapRoles = new Map(items.map(i => [i.idUsuario, i.roles] as const));
-      this.data = this.data.map(u => ({ ...u, roles: mapRoles.get(u.idUsuario) ?? [] }));
-      this.loading = false;
+    ).subscribe({
+      next: (items) => {
+        const mapRoles = new Map(items.map(i => [i.idUsuario, i.roles] as const));
+        this.data = this.data.map(u => ({ ...u, roles: mapRoles.get(u.idUsuario) ?? [] }));
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
     });
   }
 
@@ -136,8 +158,28 @@ export class UsuariosComponent implements OnInit, OnDestroy {
     apellidos: u.apellidos ?? '',
     email: u.email ?? null,
     activo: u.activo,
-    roles: []
+    roles: this.normalizeRoles((u as any).rolNombre ?? null)
   });
+
+  private normalizeRoles(rolNombre?: string | null): string[] {
+    return (rolNombre ?? '')
+      .split(',')
+      .map((x) => x.trim())
+      .filter(Boolean);
+  }
+
+  roleClass(role: string): string {
+    const r = (role || '').toUpperCase();
+    if (r.includes('ADMIN')) return 'admin';
+    if (r.includes('CONTAB')) return 'finance';
+    if (r.includes('VENTA')) return 'sales';
+    if (r.includes('COORDINADOR')) return 'coord';
+    return 'default';
+  }
+
+  trackRole(_: number, role: string): string {
+    return role;
+  }
 
   get dataSource(): UsuarioRow[] {
     const query = this.q.trim().toLowerCase();
@@ -155,36 +197,46 @@ export class UsuariosComponent implements OnInit, OnDestroy {
       });
   }
 
-  nuevoUsuario() {
+  nuevoUsuario(): void {
     const ref = this.dialog.open(UsuarioDialogComponent, { width: '720px', data: null });
     ref.afterClosed().subscribe((ok: boolean) => {
       if (ok) this.cargar(true);
     });
   }
 
-  editar(u: UsuarioRow) {
+  editar(u: UsuarioRow): void {
     const ref = this.dialog.open(UsuarioDialogComponent, { width: '720px', data: u });
     ref.afterClosed().subscribe((ok: boolean) => {
       if (ok) this.cargar(true);
     });
   }
 
-  asignarRol(u: UsuarioRow) {
+  asignarRol(u: UsuarioRow): void {
     const ref = this.dialog.open(UsuarioRolesDialogComponent, { width: '720px', data: u });
     ref.afterClosed().subscribe((ok: boolean) => {
       if (ok) this.cargar(true);
     });
   }
 
-  toggleActivo(u: UsuarioRow) {
+  toggleActivo(u: UsuarioRow): void {
+    if (this.pendingToggleId === u.idUsuario) return;
+
     const nuevoEstado = !u.activo;
-    const usuarioSesion = this.auth.getSession()?.username ?? 'system';
+    const usuarioSesion = this.auth.getUsuario() ?? 'admin';
+
+    this.pendingToggleId = u.idUsuario;
+    this.errorMsg = '';
 
     this.usuarios.cambiarEstado(u.idUsuario, nuevoEstado, usuarioSesion).subscribe({
-      next: () => (u.activo = nuevoEstado),
+      next: () => {
+        this.pendingToggleId = null;
+        this.cargar(true);
+      },
       error: (err) => {
         console.error('Cambio estado error:', err);
-        u.activo = !nuevoEstado;
+        this.pendingToggleId = null;
+        this.errorMsg = err?.error?.detail ?? err?.error?.message ?? 'No se pudo cambiar el estado.';
+        this.cargar(true);
       }
     });
   }

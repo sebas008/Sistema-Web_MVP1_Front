@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { VehiculosNuevosService, VehiculoNuevoCrearRequest, VehiculoNuevoActualizarRequest } from '../../core/services/vehiculos-nuevos';
+import { AuthService } from '../../core/services/auth';
 
 type VehiculoRow = {
   idVehiculo: number;
@@ -74,6 +75,7 @@ type VehiculoRow = {
 export class VehiculoDialogComponent {
   private fb = inject(FormBuilder);
   private api = inject(VehiculosNuevosService);
+  private auth = inject(AuthService);
   private dialogRef = inject(MatDialogRef<VehiculoDialogComponent>);
   data = inject(MAT_DIALOG_DATA) as VehiculoRow | null;
 
@@ -121,7 +123,7 @@ export class VehiculoDialogComponent {
     km0: [true],
     observacion: [''],
     activo: [true],
-    usuario: ['admin', [Validators.required]],
+    usuario: [this.auth.getUsuario() ?? 'admin', [Validators.required]],
   });
 
   constructor() {
@@ -166,7 +168,7 @@ export class VehiculoDialogComponent {
         km0: this.data.km0 ?? true,
         observacion: this.data.observacion ?? '',
         activo: this.data.activo,
-        usuario: 'admin',
+        usuario: this.auth.getUsuario() ?? 'admin',
       });
     }
   }
@@ -230,7 +232,7 @@ export class VehiculoDialogComponent {
       km0: !!v.km0,
       observacion: this.toNullable(v.observacion),
       activo: !!v.activo,
-      usuario: (v.usuario ?? 'admin').trim() || 'admin',
+      usuario: (v.usuario ?? this.auth.getUsuario() ?? 'admin').trim() || this.auth.getUsuario() || 'admin',
     };
 
     console.log('[VehiculoDialog] payload', payloadBase);

@@ -12,6 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { ProductosService } from '../../../core/services/productos';
 import { InventarioRepuestosService } from '../../../core/services/inventario-repuestos';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   standalone: true,
@@ -33,6 +34,7 @@ export class RepuestoDialogComponent {
   private dialogRef = inject(MatDialogRef<RepuestoDialogComponent>);
   private productos = inject(ProductosService);
   private inventario = inject(InventarioRepuestosService);
+  private auth = inject(AuthService);
 
   loading = false;
   errorMsg = '';
@@ -46,7 +48,7 @@ export class RepuestoDialogComponent {
     categoria: [''],
     precio: [0, [Validators.required, Validators.min(0)]],
     stockInicial: [0, [Validators.min(0)]],
-    usuario: ['admin', [Validators.required]],
+    usuario: [this.auth.getUsuario() ?? 'admin', [Validators.required]],
   });
 
   constructor(@Inject(MAT_DIALOG_DATA) data: any) {

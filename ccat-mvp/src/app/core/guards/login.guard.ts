@@ -3,11 +3,14 @@ import { CanActivateFn, Router } from '@angular/router';
 
 import { AuthService } from '../services/auth';
 
-/**
- * Requisito de presentación:
- * - La pantalla principal SIEMPRE es /login.
- * - No redirigimos automáticamente al dashboard aunque exista sesión.
- */
 export const loginGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (auth.isLoggedIn()) {
+    router.navigateByUrl(auth.getHomeRoute());
+    return false;
+  }
+
   return true;
 };

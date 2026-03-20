@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { OrdenesServicioService, OrdenServicio } from '../../../core/services/ordenes-servicio';
@@ -41,6 +42,7 @@ export class OrdenServicioDetalleComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly snack = inject(MatSnackBar);
+  private readonly auth = inject(AuthService);
 
   loading = false;
   id = 0;
@@ -81,7 +83,7 @@ export class OrdenServicioDetalleComponent implements OnInit {
 
     const payload = {
       ...this.form.value,
-      usuario: 'admin'
+      usuario: this.auth.getUsuario() ?? 'admin'
     } as any;
 
     this.svc.agregarDetalle(this.id, payload).subscribe({
@@ -95,7 +97,7 @@ export class OrdenServicioDetalleComponent implements OnInit {
   }
 
   eliminar(idDetalle: number): void {
-    this.svc.removerDetalle(idDetalle, 'admin').subscribe({
+    this.svc.removerDetalle(idDetalle, this.auth.getUsuario() ?? 'admin').subscribe({
       next: () => { this.cargar(); this.snack.open('Ítem eliminado', 'OK', { duration: 1500 }); },
       error: () => this.snack.open('No se pudo eliminar', 'Cerrar', { duration: 2500 })
     });

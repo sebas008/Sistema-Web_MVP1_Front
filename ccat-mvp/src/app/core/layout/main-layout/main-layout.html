@@ -1,110 +1,73 @@
 <mat-sidenav-container class="layout">
-  <mat-sidenav
-    #drawer
-    class="sidenav"
-    [mode]="drawerMode"
-    [opened]="drawerOpened"
-  >
+  <mat-sidenav #drawer class="sidenav" [mode]="drawerMode" [opened]="drawerOpened">
     <div class="brand">
-      <div class="brand__mark">CC</div>
+      <img class="brand__logo" src="/logo-ccat.png" alt="CCAT Perú" />
       <div class="brand__text">
-        <div class="brand__title">CCAT</div>
-        <div class="brand__sub">Gestión</div>
+        <div class="brand__title">CCAT Perú</div>
+        <div class="brand__sub">Sistema de Gestión</div>
       </div>
     </div>
 
     <mat-nav-list class="nav">
-      <a mat-list-item routerLink="/app/dashboard" routerLinkActive="active" (click)="closeMenuOnNav()">
-        <mat-icon>dashboard</mat-icon>
-        <span>Dashboard</span>
+      <a *ngIf="can('dashboard')" mat-list-item routerLink="/app/dashboard" routerLinkActive="active" (click)="closeMenuOnNav()">
+        <mat-icon>dashboard</mat-icon><span>Dashboard</span>
       </a>
 
-      <a mat-list-item routerLink="/app/inventario" routerLinkActive="active" (click)="closeMenuOnNav()">
-        <mat-icon>inventory</mat-icon>
-        <span>Inventario</span>
+      <a *ngIf="can('inventario')" mat-list-item routerLink="/app/inventario" routerLinkActive="active" (click)="closeMenuOnNav()">
+        <mat-icon>inventory</mat-icon><span>Inventario</span>
       </a>
 
-      <mat-expansion-panel class="nav__group" [expanded]="true" hideToggle>
+      <mat-expansion-panel class="nav__group" [expanded]="true" hideToggle *ngIf="can('facturacion') || can('compras') || can('guias')">
         <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon>account_balance</mat-icon>
-            <span>Contabilidad</span>
-          </mat-panel-title>
+          <mat-panel-title><mat-icon>account_balance</mat-icon><span>Contabilidad</span></mat-panel-title>
         </mat-expansion-panel-header>
-
         <div class="nav__sub">
-          <a mat-list-item routerLink="/app/contabilidad/facturacion" routerLinkActive="active" (click)="closeMenuOnNav()">
-            <mat-icon>receipt_long</mat-icon>
-            <span>Facturación</span>
+          <a *ngIf="can('facturacion')" mat-list-item routerLink="/app/contabilidad/facturacion" routerLinkActive="active" (click)="closeMenuOnNav()">
+            <mat-icon>receipt_long</mat-icon><span>Facturación</span>
           </a>
-
-          <a mat-list-item routerLink="/app/contabilidad/compras" routerLinkActive="active" (click)="closeMenuOnNav()">
-            <mat-icon>shopping_cart</mat-icon>
-            <span>Compras</span>
+          <a *ngIf="can('compras')" mat-list-item routerLink="/app/contabilidad/compras" routerLinkActive="active" (click)="closeMenuOnNav()">
+            <mat-icon>shopping_cart</mat-icon><span>Compras</span>
           </a>
-
-          <a mat-list-item routerLink="/app/contabilidad/guias" routerLinkActive="active" (click)="closeMenuOnNav()">
-            <mat-icon>local_shipping</mat-icon>
-            <span>Guías</span>
+          <a *ngIf="can('guias')" mat-list-item routerLink="/app/contabilidad/guias" routerLinkActive="active" (click)="closeMenuOnNav()">
+            <mat-icon>local_shipping</mat-icon><span>Guías</span>
           </a>
         </div>
       </mat-expansion-panel>
 
       <mat-divider></mat-divider>
 
-      <a mat-list-item routerLink="/app/usuarios" routerLinkActive="active" (click)="closeMenuOnNav()">
-        <mat-icon>group</mat-icon>
-        <span>Usuarios</span>
+      <a *ngIf="can('usuarios')" mat-list-item routerLink="/app/usuarios" routerLinkActive="active" (click)="closeMenuOnNav()">
+        <mat-icon>group</mat-icon><span>Usuarios</span>
       </a>
-
-      <a mat-list-item routerLink="/app/vehiculos-nuevos" routerLinkActive="active" (click)="closeMenuOnNav()">
-        <mat-icon>directions_car</mat-icon>
-        <span>Vehículos Nuevos</span>
+      <a *ngIf="can('vehiculos-nuevos')" mat-list-item routerLink="/app/vehiculos-nuevos" routerLinkActive="active" (click)="closeMenuOnNav()">
+        <mat-icon>directions_car</mat-icon><span>Vehículos Nuevos</span>
       </a>
-
-      <a mat-list-item routerLink="/app/servicios-mecanicos" routerLinkActive="active" (click)="closeMenuOnNav()">
-        <mat-icon>build</mat-icon>
-        <span>Servicios Mecánicos</span>
+      <a *ngIf="can('servicios-mecanicos')" mat-list-item routerLink="/app/servicios-mecanicos" routerLinkActive="active" (click)="closeMenuOnNav()">
+        <mat-icon>build</mat-icon><span>Servicios Mecánicos</span>
       </a>
-
-      <a mat-list-item routerLink="/app/clientes" routerLinkActive="active" (click)="closeMenuOnNav()">
-        <mat-icon>person</mat-icon>
-        <span>Clientes</span>
+      <a *ngIf="can('clientes')" mat-list-item routerLink="/app/clientes" routerLinkActive="active" (click)="closeMenuOnNav()">
+        <mat-icon>person</mat-icon><span>Clientes</span>
       </a>
     </mat-nav-list>
 
-    <div class="footer">© 2026 CCAT</div>
+    <div class="footer">© 2026 CCAT Perú</div>
   </mat-sidenav>
 
   <mat-sidenav-content class="content">
     <mat-toolbar class="topbar" color="primary">
-      <button mat-icon-button class="topbar__menu" (click)="toggleMenu()" aria-label="Menú">
-        <mat-icon>menu</mat-icon>
-      </button>
-
+      <button mat-icon-button class="topbar__menu" (click)="toggleMenu()" aria-label="Menú"><mat-icon>menu</mat-icon></button>
+      <img class="topbar__logo" src="/logo-ccat.png" alt="CCAT" />
       <div class="topbar__title">CCAT · Sistema de Gestión</div>
       <span class="spacer"></span>
-
-      <button
-        mat-button
-        [matMenuTriggerFor]="profileMenu"
-        class="topbar__profile"
-        aria-label="Perfil"
-      >
+      <button mat-button [matMenuTriggerFor]="profileMenu" class="topbar__profile" aria-label="Perfil">
         <mat-icon>account_circle</mat-icon>
         <span>{{ displayName }}</span>
       </button>
-
       <mat-menu #profileMenu="matMenu">
-        <button mat-menu-item (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span>Cerrar sesión</span>
-        </button>
+        <div class="profile-role" mat-menu-item disabled>{{ roleLabel }}</div>
+        <button mat-menu-item (click)="logout()"><mat-icon>logout</mat-icon><span>Cerrar sesión</span></button>
       </mat-menu>
     </mat-toolbar>
-
-    <div class="page">
-      <router-outlet></router-outlet>
-    </div>
+    <div class="page"><router-outlet></router-outlet></div>
   </mat-sidenav-content>
 </mat-sidenav-container>

@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { OrdenesServicioService } from '../../../../core/services/ordenes-servicio';
 import { ClientesService, ClienteResponse } from '../../../../core/services/clientes';
+import { AuthService } from '../../../../core/services/auth';
 
 @Component({
   standalone: true,
@@ -35,6 +36,7 @@ export class OsCrearDialogComponent {
   private osApi = inject(OrdenesServicioService);
   private clientesApi = inject(ClientesService);
   private cdr = inject(ChangeDetectorRef);
+  private auth = inject(AuthService);
 
   loading = false;
 
@@ -49,7 +51,7 @@ export class OsCrearDialogComponent {
     modelo: [''],
     kilometraje: [null as number | null],
     observacion: [''],
-    usuario: ['admin', [Validators.required]],
+    usuario: [this.auth.getUsuario() ?? 'admin', [Validators.required]],
   });
 
   constructor() {
