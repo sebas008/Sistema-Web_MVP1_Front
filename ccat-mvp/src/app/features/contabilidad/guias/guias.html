@@ -85,14 +85,14 @@
       </ng-container>
 
       <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let g" class="col-acciones">
           <div class="acciones-wrap">
-            <button mat-icon-button class="accion-btn accion-btn--view" (click)="ver(g)" matTooltip="Ver detalle" aria-label="Ver detalle">
+            <!-- <button mat-icon-button class="accion-btn accion-btn--view" (click)="ver(g)" matTooltip="Ver detalle" aria-label="Ver detalle">
               <mat-icon>visibility</mat-icon>
-            </button>
+            </button> -->
 
-            <button
+            <!-- <button
               mat-icon-button
               class="accion-btn accion-btn--delete"
               (click)="anular(g)"
@@ -100,7 +100,7 @@
               matTooltip="Eliminar"
               aria-label="Eliminar">
               <mat-icon>delete</mat-icon>
-            </button>
+            </button> -->
           </div>
         </td>
       </ng-container>

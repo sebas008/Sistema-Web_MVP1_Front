@@ -52,7 +52,7 @@ export class OrdenesServicioComponent implements OnInit, OnDestroy {
 
   loading = false;
 
-  displayedColumns = ['numero', 'vehiculo', 'estado', 'total', 'acciones'];
+  displayedColumns = ['numero', 'vehiculo', 'estado'];
   data: OrdenServicio[] = [];
 
   filtro = this.fb.group({
@@ -107,9 +107,6 @@ export class OrdenesServicioComponent implements OnInit, OnDestroy {
     this.cargar(true);
   }
 
-  abrirDetalle(row: OrdenServicio): void {
-    this.router.navigate(['/app/servicios-mecanicos', row.idOrdenServicio]);
-  }
 
   abrirCrear(): void {
     const ref = this.dialog.open(OsCrearDialogComponent, { width: '760px' });

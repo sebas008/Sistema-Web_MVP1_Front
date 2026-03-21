@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { finalize, timeout } from 'rxjs/operators';
 
 import { GuiasService, GuiaResponse } from '../../../core/services/contabilidad/guias';
 
@@ -23,18 +24,20 @@ export class GuiaDetalleDialogComponent {
   guia: GuiaResponse | null = null;
 
   constructor() {
-    this.api.obtener(this.data.idGuia).subscribe({
-      next: (g) => {
-        this.guia = g;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.loading = false;
-        this.errorMsg = err?.error?.detail ?? err?.error?.message ?? 'No se pudo cargar la guía.';
-      },
-      complete: () => {
-        this.loading = false;
-      }
-    });
+    this.api.obtener(this.data.idGuia)
+      .pipe(
+        timeout(8000),
+        finalize(() => { this.loading = false; })
+      )
+      .subscribe({
+        next: (g) => {
+          this.guia = g;
+        },
+        error: (err) => {
+          this.errorMsg = err?.name === 'TimeoutError'
+            ? 'La consulta tardó demasiado. Intenta nuevamente.'
+            : (err?.error?.detail ?? err?.error?.message ?? 'No se pudo cargar la guía.');
+        }
+      });
   }
 }
